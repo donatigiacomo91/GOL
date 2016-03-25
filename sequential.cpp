@@ -3,7 +3,7 @@
 
 /*
  *
- * compile with: g++-5 -std=c++11 -O3 sequential.cpp -o seq
+ * compile with: g++-5 -std=c++11 -O3 sequential.cpp -o seq.exe
  * run with: ./seq.exe @row_number @colum_number @iteration_number [@configuration_number (from 1 to 4)]
  *
  * */
@@ -53,6 +53,7 @@ void set_test_conf_4(board& b) {
     b[2][1] = 1;
     b[2][2] = 1;
 }
+
 
 void update(int i, int j, board& in, board& out) {
 
@@ -116,7 +117,7 @@ int main(int argc, char* argv[]) {
             set_test_conf_4(in);
             break;
     }
-    in.print();
+    //in.print();
 
 
     // game iteration
@@ -125,9 +126,9 @@ int main(int argc, char* argv[]) {
         for (auto i = 0; i < rows; ++i) {
             for (auto j = 0; j < cols ; ++j) {
                 update(i,j,*p_in,*p_out);
-                std::cout << (*p_out)[i][j] << " ";
+                //std::cout << (*p_out)[i][j] << " ";
             }
-            std::cout << std::endl;
+            //std::cout << std::endl;
         }
 
         //swap pointer
@@ -136,7 +137,7 @@ int main(int argc, char* argv[]) {
         p_out = tmp;
 
         it_num--;
-        std::cout << std::endl;
+        //std::cout << std::endl;
     }
 
     return 0;
