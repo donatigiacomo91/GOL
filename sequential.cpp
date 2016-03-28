@@ -3,7 +3,7 @@
 
 /*
  *
- * compile with: g++-5 -std=c++11 -O3 sequential.cpp -o seq.exe
+ * compile with: g++ -std=c++11 -O3 sequential.cpp -o seq.exe
  * run with: ./seq.exe @row_number @colum_number @iteration_number [@configuration_number (from 1 to 4)]
  *
  * */

@@ -9,8 +9,8 @@
 /*
  *
  *
- * compile with: g++-5 threads.cpp -std=c++11 -O3 -o threads.exe
- * run with: ./threads.exe @row_number @colum_number @iteration_number @parallelism degree
+ * compile with: g++ threads.cpp -std=c++11 -O3 -o threads.exe
+ * run with: ./threads.exe @row_number @colum_number @iteration_number @parallelism degree [@configuration_number (from 1 to 4)]
  *
  *
  * */
@@ -75,6 +75,7 @@ void body(int start, int stop, int iter, board* p_in, board* p_out) {
         barrier.lock();
         count++;
         if (count == thread_number) {
+            (*p_in).print();
             // if all thread have complete unlock and notify all
             count = 0;
             barrier.unlock();
@@ -90,6 +91,52 @@ void body(int start, int stop, int iter, board* p_in, board* p_out) {
     return;
 }
 
+void set_random_conf(board& b) {
+    for(auto i=0; i<b.m_width; i++)
+        for(auto j=0; j<b.m_height; j++)
+            b[i][j] = rand()%2;
+}
+
+// Beacon test conf (periodic)
+void set_test_conf_1(board& b) {
+    b[0][0] = 1;
+    b[0][1] = 1;
+    b[1][0] = 1;
+    b[1][1] = 1;
+
+    b[2][2] = 1;
+    b[2][3] = 1;
+    b[3][2] = 1;
+    b[3][3] = 1;
+}
+
+// Blinker test conf (periodic)
+void set_test_conf_2(board& b) {
+    b[b.m_height/2][b.m_width/2] = 1;
+    b[b.m_height/2][b.m_width/2+1] = 1;
+    b[b.m_height/2][b.m_width/2-1] = 1;
+}
+
+// Glider test conf (dynamic)
+// note: in a 10x10 matrix come back to initial conf in 40 iterations
+void set_test_conf_3(board& b) {
+    b[0][1] = 1;
+    b[1][2] = 1;
+    b[2][0] = 1;
+    b[2][1] = 1;
+    b[2][2] = 1;
+}
+
+// Beehive test conf (static)
+void set_test_conf_4(board& b) {
+    b[0][1] = 1;
+    b[0][2] = 1;
+    b[1][0] = 1;
+    b[1][3] = 1;
+    b[2][1] = 1;
+    b[2][2] = 1;
+}
+
 int main(int argc, char* argv[]) {
 
     // board size
@@ -102,9 +149,30 @@ int main(int argc, char* argv[]) {
     // set global var
     thread_number = th_num;
 
+    auto conf_num = atoi(argv[5]);
+
     // data structures
     board in(rows,cols);
     board out(rows,cols);
+
+    switch (conf_num) {
+        case 0:
+            set_random_conf(in);
+            break;
+        case 1 :
+            set_test_conf_1(in);
+            break;
+        case 2 :
+            set_test_conf_2(in);
+            break;
+        case 3:
+            set_test_conf_3(in);
+            break;
+        case 4:
+            set_test_conf_4(in);
+            break;
+    }
+    in.print();
 
     // TODO: think about static splitting [particular case es: th_rows<1 ...]
 
@@ -117,6 +185,7 @@ int main(int argc, char* argv[]) {
     for(auto i=0; i<th_num; i++) {
         start = stop;
         stop = (remains > 0) ? start + th_rows : start + th_rows -1;
+        std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
         tid.push_back(std::thread(body, start, stop, it_num, &in, &out));
         remains--;
         stop++;
