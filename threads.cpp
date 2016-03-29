@@ -51,6 +51,9 @@ void update(int i, int j, board& in, board& out) {
 }
 
 void body(int start, int stop, int iter, board* p_in, board* p_out) {
+
+    std::cout << "Thread n. " << std::this_thread::get_id() << " start executing..."<< std::endl;
+
     // columns number
     const auto col = p_in->m_width;
     // synchronization lock (some kind of barrier)
