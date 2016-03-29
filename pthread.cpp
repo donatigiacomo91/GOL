@@ -198,17 +198,21 @@ int main(int argc, char* argv[]) {
     pthread_barrier_init(&barrier, NULL, th_num);
 
     int start, stop = 0;
+    thread_data* t_data = (thread_data*) malloc(sizeof(t_data)*th_num);
     for(auto i=0; i<th_num; i++) {
         start = stop;
         stop = (remains > 0) ? start + th_rows : start + th_rows -1;
-        thread_data t_data  = {&in, &out, start, stop, it_num, i};
-        auto rc = pthread_create(&tid[i], NULL, body, (void *)&t_data);
-        if (rc){
-            std::cout << "ERROR; return code from pthread_create() is " << rc << std::endl;
-        }
+        t_data[i]  = {&in, &out, start, stop, it_num, i};
         std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
         remains--;
         stop++;
+    }
+
+    for(auto i=0; i<th_num; i++) {
+        auto rc = pthread_create(&tid[i], NULL, body, (void *)&t_data[i]);
+        if (rc){
+            std::cout << "ERROR; return code from pthread_create() is " << rc << std::endl;
+        }
     }
 
     // await termination
