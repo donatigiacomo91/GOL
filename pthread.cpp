@@ -61,8 +61,6 @@ void* body(void* arg) {
     int stop = data->_stop;
     int iter = data->_iter;
 
-    std::cout << "th n. " << data->_id << " start"<< std::endl;
-
     // columns number
     const auto col = p_in->m_width;
 
@@ -82,20 +80,13 @@ void* body(void* arg) {
         // decrease iteration count
         iter--;
 
-        std::cout << "th n. " << data->_id << " at barrier"<< std::endl;
         int res = pthread_barrier_wait(&barrier);
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
-            // unique serial thread
-            std::cout << "all th have reached the barrier"<< std::endl;
             (*p_in).print();
         } else if(res != 0) {
             // error occurred
             std::cout << "Barrier error n." << res << std::endl;
         }
-        std::cout << "th n. " << data->_id << " out of barrier"<< std::endl;
-//        else {
-//            // non-serial thread released
-//        }
 
     }
 
