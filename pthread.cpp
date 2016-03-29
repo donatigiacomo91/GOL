@@ -154,8 +154,6 @@ int main(int argc, char* argv[]) {
     auto it_num = atoi(argv[3]);
     // parallelism degree
     auto th_num = atoi(argv[4]);
-    // set global var
-    thread_number = th_num;
 
     auto conf_num = atoi(argv[5]);
 
