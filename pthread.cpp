@@ -18,14 +18,11 @@ struct thread_data{
     int _start;
     int _stop;
     int _iter;
+    int _id;
 };
 
 // synchronization lock (some kind of barrier)
-std::mutex m;
-std::condition_variable cv;
-// synchronization variable
-int count = 0;
-int thread_number;
+pthread_barrier_t barrier;
 
 void update(int i, int j, board& in, board& out) {
 
@@ -57,44 +54,48 @@ void update(int i, int j, board& in, board& out) {
 
 void* body(void* arg) {
 
-//    std::cout << "Thread n. " << std::this_thread::get_id() << " start executing..."<< std::endl;
-//
-//    // columns number
-//    const auto col = p_in->m_width;
-//    // synchronization lock (some kind of barrier)
-//    std::unique_lock<std::mutex> barrier(m, std::defer_lock);
-//
-//    // game iteration
-//    while(iter > 0) {
-//
-//        for (auto i = start; i <= stop; ++i) {
-//            for (auto j = 0; j < col; ++j) {
-//                update(i,j,*p_in,*p_out);
-//            }
+    thread_data* data = (thread_data*) arg;
+    board* p_in = data->_in;
+    board* p_out = data->_out;
+    int start = data->_start;
+    int stop = data->_stop;
+    int iter = data->_iter;
+
+    std::cout << "Thread n. " << data->_id << " start executing..."<< std::endl;
+
+    // columns number
+    const auto col = p_in->m_width;
+
+    // game iteration
+    while(iter > 0) {
+
+        for (auto i = start; i <= stop; ++i) {
+            for (auto j = 0; j < col; ++j) {
+                update(i,j,*p_in,*p_out);
+            }
+        }
+
+        // swap pointer
+        board* tmp = p_in;
+        p_in = p_out;
+        p_out = tmp;
+        // decrease iteration count
+        iter--;
+
+        int res = pthread_barrier_wait(&barrier);
+        if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
+            // unique serial thread
+            (*p_in).print();
+        } else if(res != 0) {
+            // error occurred
+            std::cout << "Barrier error n." << res << std::endl;
+        }
+//        else {
+//            // non-serial thread released
 //        }
-//
-//        // swap pointer
-//        board* tmp = p_in;
-//        p_in = p_out;
-//        p_out = tmp;
-//        // decrease iteration count
-//        iter--;
-//
-//        barrier.lock();
-//        count++;
-//        if (count == thread_number) {
-//            (*p_in).print();
-//            // if all thread have complete unlock and notify all
-//            count = 0;
-//            barrier.unlock();
-//            cv.notify_all();
-//        } else {
-//            // wait until all thread complete the current game iteration
-//            cv.wait(barrier);
-//            barrier.unlock();
-//        }
-//
-//    }
+
+    }
+
     pthread_exit(NULL);
 }
 
@@ -192,12 +193,14 @@ int main(int argc, char* argv[]) {
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
     pthread_t* tid = (pthread_t*) malloc(sizeof(pthread_t)*th_num);
+    // initialize a barrier
+    pthread_barrier_init(&barrier, NULL, th_num);
 
     int start, stop = 0;
     for(auto i=0; i<th_num; i++) {
         start = stop;
         stop = (remains > 0) ? start + th_rows : start + th_rows -1;
-        thread_data t_data  = {&in, &out, start, stop, it_num};
+        thread_data t_data  = {&in, &out, start, stop, it_num, i};
         auto rc = pthread_create(&tid[i], NULL, body, (void *)&t_data);
         if (rc){
             std::cout << "ERROR; return code from pthread_create() is " << rc << std::endl;
@@ -209,13 +212,16 @@ int main(int argc, char* argv[]) {
 
     // await termination
     void *status;
-    pthread_attr_destroy(&attr);
     for(auto i=0; i<th_num; i++) {
         auto rc = pthread_join(tid[i], &status);
         if (rc) {
             std::cout << "ERROR; return code from pthread_join() is " << rc << std::endl;
         }
     }
+
+    // clean up
+    pthread_attr_destroy(&attr);
+    pthread_barrier_destroy(&barrier);
 
     return 0;
 }

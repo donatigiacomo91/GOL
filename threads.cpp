@@ -56,6 +56,7 @@ void body(int start, int stop, int iter, board* p_in, board* p_out) {
 
     // columns number
     const auto col = p_in->m_width;
+    // TODO: this must be in the main (one time initialization) ???
     // synchronization lock (some kind of barrier)
     std::unique_lock<std::mutex> barrier(m, std::defer_lock);
 
