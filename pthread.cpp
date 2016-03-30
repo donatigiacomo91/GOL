@@ -14,16 +14,18 @@
  * */
 
 struct thread_data{
-    board* _in;
-    board* _out;
     int _start;
     int _stop;
-    int _iter;
-    int _id;
 };
 
 // synchronization lock (some kind of barrier)
 pthread_barrier_t barrier;
+
+// game boards
+board* in;
+board* out;
+
+int iter_num;
 
 void update(int i, int j, board& in, board& out) {
 
@@ -56,11 +58,11 @@ void update(int i, int j, board& in, board& out) {
 void* body(void* arg) {
 
     thread_data* data = (thread_data*) arg;
-    board* p_in = data->_in;
-    board* p_out = data->_out;
+    board* p_in = in;
+    board* p_out = out;
+    int iter = iter_num;
     int start = data->_start;
     int stop = data->_stop;
-    int iter = data->_iter;
 
     // columns number
     const auto col = p_in->m_width;
@@ -146,7 +148,7 @@ int main(int argc, char* argv[]) {
     auto rows = atoi(argv[1]);
     auto cols = atoi(argv[2]);
     // iteration number
-    auto it_num = atoi(argv[3]);
+    iter_num = atoi(argv[3]);
     // parallelism degree
     auto th_num = atoi(argv[4]);
     // starting configuration
@@ -156,24 +158,24 @@ int main(int argc, char* argv[]) {
     }
 
     // data structures
-    board in(rows,cols);
-    board out(rows,cols);
+    in = new board(rows,cols);
+    out = new board(rows,cols);
 
     switch (conf_num) {
         case 0:
-            set_random_conf(in);
+            set_random_conf(*in);
             break;
         case 1 :
-            set_test_conf_1(in);
+            set_test_conf_1(*in);
             break;
         case 2 :
-            set_test_conf_2(in);
+            set_test_conf_2(*in);
             break;
         case 3:
-            set_test_conf_3(in);
+            set_test_conf_3(*in);
             break;
         case 4:
-            set_test_conf_4(in);
+            set_test_conf_4(*in);
             break;
     }
     //in.print();
@@ -184,11 +186,10 @@ int main(int argc, char* argv[]) {
     auto remains = rows % th_num;
 
     // thread pool setup
-    /* Initialize and set thread detached attribute */
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-    pthread_t* tid = (pthread_t*) malloc(sizeof(pthread_t)*th_num);
+
     // initialize a barrier
     pthread_barrier_init(&barrier, NULL, th_num);
 
@@ -197,12 +198,13 @@ int main(int argc, char* argv[]) {
     for(auto i=0; i<th_num; i++) {
         start = stop;
         stop = (remains > 0) ? start + th_rows : start + th_rows -1;
-        t_data[i]  = {&in, &out, start, stop, it_num, i};
+        t_data[i]  = {start, stop};
         //std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
         remains--;
         stop++;
     }
 
+    pthread_t* tid = (pthread_t*) malloc(sizeof(pthread_t)*th_num);
     for(auto i=0; i<th_num; i++) {
         auto rc = pthread_create(&tid[i], NULL, body, (void *)&t_data[i]);
         if (rc){
@@ -222,6 +224,8 @@ int main(int argc, char* argv[]) {
     // clean up
     pthread_attr_destroy(&attr);
     pthread_barrier_destroy(&barrier);
+    delete in;
+    delete out;
 
     return 0;
 }
