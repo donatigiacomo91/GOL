@@ -16,11 +16,15 @@
  *
  * */
 
+// game data
+board* in;
+board* out;
+int game_iteration;
 // synchronization lock (some kind of barrier)
 std::mutex m;
 std::condition_variable cv;
 // synchronization variable
-int count = 0;
+int barrier_count = 0;
 int thread_number;
 
 void update(int i, int j, board& in, board& out) {
@@ -51,12 +55,15 @@ void update(int i, int j, board& in, board& out) {
     }
 }
 
-void body(int start, int stop, int iter, board* p_in, board* p_out) {
+void body(int start, int stop) {
 
-    std::cout << "Thread n. " << std::this_thread::get_id() << " start executing..."<< std::endl;
+    //std::cout << "Thread n. " << std::this_thread::get_id() << " start executing..."<< std::endl;
 
-    // columns number
-    const auto col = p_in->m_width;
+    const auto col = in->m_width;
+    int iter = game_iteration;
+    board* p_in = in;
+    board* p_out = out;
+
     // TODO: this must be in the main (one time initialization) ???
     // synchronization lock (some kind of barrier)
     std::unique_lock<std::mutex> barrier(m, std::defer_lock);
@@ -77,12 +84,13 @@ void body(int start, int stop, int iter, board* p_in, board* p_out) {
         // decrease iteration count
         iter--;
 
+        // TODO: check again the condition after wait() ???
         barrier.lock();
-        count++;
-        if (count == thread_number) {
-            (*p_in).print();
+        barrier_count++;
+        if (barrier_count == thread_number) {
+            //(*p_in).print();
             // if all thread have complete unlock and notify all
-            count = 0;
+            barrier_count = 0;
             barrier.unlock();
             cv.notify_all();
         } else {
@@ -147,63 +155,62 @@ int main(int argc, char* argv[]) {
     // board size
     auto rows = atoi(argv[1]);
     auto cols = atoi(argv[2]);
-    // iteration number
-    auto it_num = atoi(argv[3]);
+    // game iteration number
+    game_iteration = atoi(argv[3]);
     // parallelism degree
-    auto th_num = atoi(argv[4]);
-    // set global var
-    thread_number = th_num;
-
+    thread_number = atoi(argv[4]);
     // starting configuration
     auto conf_num = 0;
     if (argc > 5) {
         conf_num = atoi(argv[5]);
     }
 
-
     // data structures
-    board in(rows,cols);
-    board out(rows,cols);
+    in = new board(rows,cols);
+    out = new board(rows,cols);
 
     switch (conf_num) {
         case 0:
-            set_random_conf(in);
+            set_random_conf(*in);
             break;
         case 1 :
-            set_test_conf_1(in);
+            set_test_conf_1(*in);
             break;
         case 2 :
-            set_test_conf_2(in);
+            set_test_conf_2(*in);
             break;
         case 3:
-            set_test_conf_3(in);
+            set_test_conf_3(*in);
             break;
         case 4:
-            set_test_conf_4(in);
+            set_test_conf_4(*in);
             break;
     }
-    in.print();
+    // in->print();
 
     // TODO: think about static splitting [particular case es: th_rows<1 ...]
 
-    auto th_rows = rows / th_num;
-    auto remains = rows % th_num;
+    auto th_rows = rows / thread_number;
+    auto remains = rows % thread_number;
 
     // thread pool
     std::vector<std::thread> tid;
     int start, stop = 0;
-    for(auto i=0; i<th_num; i++) {
+    for(auto i=0; i<thread_number; i++) {
         start = stop;
         stop = (remains > 0) ? start + th_rows : start + th_rows -1;
-        std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
-        tid.push_back(std::thread(body, start, stop, it_num, &in, &out));
+        // std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
+        tid.push_back(std::thread(body, start, stop));
         remains--;
         stop++;
     }
 
     // await termination
-    for(int i=0; i<th_num; i++)
+    for(int i=0; i<thread_number; i++)
         tid[i].join();
+
+    delete in;
+    delete out;
 
     return 0;
 }
