@@ -1,4 +1,6 @@
 #include <iostream>
+#include <stdlib.h>
+
 #include "board.h"
 
 /*
@@ -9,8 +11,8 @@
  * */
 
 void set_random_conf(board& b) {
-    for(auto i=0; i<b.m_width; i++)
-        for(auto j=0; j<b.m_height; j++)
+    for(auto i=0; i<b.m_height; i++)
+        for(auto j=0; j<b.m_width; j++)
             b[i][j] = rand()%2;
 }
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdlib.h>
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -96,8 +97,8 @@ void body(int start, int stop, int iter, board* p_in, board* p_out) {
 }
 
 void set_random_conf(board& b) {
-    for(auto i=0; i<b.m_width; i++)
-        for(auto j=0; j<b.m_height; j++)
+    for(auto i=0; i<b.m_height; i++)
+        for(auto j=0; j<b.m_width; j++)
             b[i][j] = rand()%2;
 }
 
@@ -154,7 +155,10 @@ int main(int argc, char* argv[]) {
     thread_number = th_num;
 
     // starting configuration
-    auto conf_num = (argc>5) ? atoi(argv[5]) : 0;
+    auto conf_num = 0;
+    if (argc > 5) {
+        conf_num = atoi(argv[5]);
+    }
 
 
     // data structures
