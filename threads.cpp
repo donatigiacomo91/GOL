@@ -153,7 +153,9 @@ int main(int argc, char* argv[]) {
     // set global var
     thread_number = th_num;
 
-    auto conf_num = atoi(argv[5]);
+    // starting configuration
+    auto conf_num = (argc>5) ? atoi(argv[5]) : 0;
+
 
     // data structures
     board in(rows,cols);

@@ -82,10 +82,10 @@ void* body(void* arg) {
 
         int res = pthread_barrier_wait(&barrier);
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
-            (*p_in).print();
+            //(*p_in).print();
         } else if(res != 0) {
             // error occurred
-            std::cout << "Barrier error n." << res << std::endl;
+            std::cout << "ERROR in barrier n." << res << std::endl;
         }
 
     }
@@ -148,8 +148,8 @@ int main(int argc, char* argv[]) {
     auto it_num = atoi(argv[3]);
     // parallelism degree
     auto th_num = atoi(argv[4]);
-    // board initial configuration
-    auto conf_num = atoi(argv[5]);
+    // starting configuration
+    auto conf_num = (argc>5) ? atoi(argv[5]) : 0;
 
     // data structures
     board in(rows,cols);
@@ -172,7 +172,7 @@ int main(int argc, char* argv[]) {
             set_test_conf_4(in);
             break;
     }
-    in.print();
+    //in.print();
 
     // TODO: think about static splitting [particular case es: th_rows<1 ...]
 
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
         start = stop;
         stop = (remains > 0) ? start + th_rows : start + th_rows -1;
         t_data[i]  = {&in, &out, start, stop, it_num, i};
-        std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
+        //std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
         remains--;
         stop++;
     }
