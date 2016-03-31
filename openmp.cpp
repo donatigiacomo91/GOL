@@ -1,14 +1,16 @@
 #include <iostream>
+#include <omp.h>
 
 #include "board.h"
 #include "game_conf.h"
 
 /*
  *
- * compile with: g++ -std=c++11 -O3 sequential.cpp -o seq.exe
- * run with: ./seq.exe @row_number @colum_number @iteration_number [@configuration_number (from 1 to 4)]
+ * compile with: g++-5 openmp.cpp -std=c++11 -O3 -fopenmp -o openmp.exe
+ * run with:
  *
  * */
+
 
 void update(int i, int j, board& in, board& out) {
 
@@ -72,27 +74,26 @@ int main(int argc, char* argv[]) {
             game_conf::set_test_conf_4(in);
             break;
     }
-    //in.print();
+    // in.print();
 
 
     // game iteration
-    while(it_num > 0) {
+    for (int k = 0; k < it_num; ++k) {
 
+        #pragma omp parallel for collapse(2) schedule(static)
         for (auto i = 0; i < rows; ++i) {
-            for (auto j = 0; j < cols ; ++j) {
-                update(i,j,*p_in,*p_out);
-                //std::cout << (*p_out)[i][j] << " ";
+            for (auto j = 0; j < cols; ++j) {
+                update(i, j, *p_in, *p_out);
             }
-            //std::cout << std::endl;
         }
+        // (*p_out).print();
 
         //swap pointer
-        board* tmp = p_in;
+        board *tmp = p_in;
         p_in = p_out;
         p_out = tmp;
 
-        it_num--;
-        //std::cout << std::endl;
+        // std::cout << std::endl;
     }
 
     return 0;

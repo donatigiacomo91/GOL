@@ -1,11 +1,11 @@
 #include <iostream>
-#include <stdlib.h>
 #include <vector>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 
 #include "board.h"
+#include "game_conf.h"
 
 /*
  *
@@ -104,52 +104,6 @@ void body(int start, int stop) {
     return;
 }
 
-void set_random_conf(board& b) {
-    for(auto i=0; i<b.m_height; i++)
-        for(auto j=0; j<b.m_width; j++)
-            b[i][j] = rand()%2;
-}
-
-// Beacon test conf (periodic)
-void set_test_conf_1(board& b) {
-    b[0][0] = 1;
-    b[0][1] = 1;
-    b[1][0] = 1;
-    b[1][1] = 1;
-
-    b[2][2] = 1;
-    b[2][3] = 1;
-    b[3][2] = 1;
-    b[3][3] = 1;
-}
-
-// Blinker test conf (periodic)
-void set_test_conf_2(board& b) {
-    b[b.m_height/2][b.m_width/2] = 1;
-    b[b.m_height/2][b.m_width/2+1] = 1;
-    b[b.m_height/2][b.m_width/2-1] = 1;
-}
-
-// Glider test conf (dynamic)
-// note: in a 10x10 matrix come back to initial conf in 40 iterations
-void set_test_conf_3(board& b) {
-    b[0][1] = 1;
-    b[1][2] = 1;
-    b[2][0] = 1;
-    b[2][1] = 1;
-    b[2][2] = 1;
-}
-
-// Beehive test conf (static)
-void set_test_conf_4(board& b) {
-    b[0][1] = 1;
-    b[0][2] = 1;
-    b[1][0] = 1;
-    b[1][3] = 1;
-    b[2][1] = 1;
-    b[2][2] = 1;
-}
-
 int main(int argc, char* argv[]) {
 
     // board size
@@ -171,19 +125,19 @@ int main(int argc, char* argv[]) {
 
     switch (conf_num) {
         case 0:
-            set_random_conf(*in);
+            game_conf::set_random_conf(*in);
             break;
         case 1 :
-            set_test_conf_1(*in);
+            game_conf::set_test_conf_1(*in);
             break;
         case 2 :
-            set_test_conf_2(*in);
+            game_conf::set_test_conf_2(*in);
             break;
         case 3:
-            set_test_conf_3(*in);
+            game_conf::set_test_conf_3(*in);
             break;
         case 4:
-            set_test_conf_4(*in);
+            game_conf::set_test_conf_4(*in);
             break;
     }
     // in->print();
