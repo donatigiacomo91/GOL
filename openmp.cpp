@@ -47,8 +47,9 @@ int main(int argc, char* argv[]) {
     auto cols = atoi(argv[2]);
     // iteration number
     auto it_num = atoi(argv[3]);
+    auto th_num = atoi(argv[4]);
     // starting configuration
-    auto conf_num = (argc>4) ? atoi(argv[4]) : 0;
+    auto conf_num = (argc>5) ? atoi(argv[5]) : 0;
 
     // data structures
     board in(rows,cols);
@@ -80,7 +81,7 @@ int main(int argc, char* argv[]) {
     // game iteration
     for (int k = 0; k < it_num; ++k) {
 
-        #pragma omp parallel for collapse(2) schedule(static)
+        #pragma omp parallel for collapse(2) num_threads(th_num)
         for (auto i = 0; i < rows; ++i) {
             for (auto j = 0; j < cols; ++j) {
                 update(i, j, *p_in, *p_out);
