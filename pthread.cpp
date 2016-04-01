@@ -1,5 +1,6 @@
 #include <iostream>
 #include <pthread.h>
+#include <chrono>
 
 #include "board.h"
 #include "game_conf.h"
@@ -13,6 +14,8 @@
  *
  * */
 
+// #define PRINT
+
 struct thread_data{
     int _start;
     int _stop;
@@ -21,6 +24,7 @@ struct thread_data{
 // synchronization lock (some kind of barrier)
 pthread_barrier_t barrier;
 
+// TODO: probably heap pointers are not a good idea
 // game boards
 board* in;
 board* out;
@@ -60,7 +64,6 @@ void* body(void* arg) {
     thread_data* data = (thread_data*) arg;
     board* p_in = in;
     board* p_out = out;
-    int iter = iter_num;
     int start = data->_start;
     int stop = data->_stop;
 
@@ -68,7 +71,7 @@ void* body(void* arg) {
     const auto col = p_in->m_width;
 
     // game iteration
-    while(iter > 0) {
+    for (int k = 0; k < iter_num; ++k) {
 
         for (auto i = start; i <= stop; ++i) {
             for (auto j = 0; j < col; ++j) {
@@ -80,12 +83,12 @@ void* body(void* arg) {
         board* tmp = p_in;
         p_in = p_out;
         p_out = tmp;
-        // decrease iteration count
-        iter--;
 
         int res = pthread_barrier_wait(&barrier);
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
-            //(*p_in).print();
+            #ifdef PRINT
+            (*p_in).print();
+            #endif
         } else if(res != 0) {
             // error occurred
             std::cout << "ERROR in barrier n." << res << std::endl;
@@ -111,6 +114,7 @@ int main(int argc, char* argv[]) {
         conf_num = atoi(argv[5]);
     }
 
+    // TODO: use or not "new" ???
     // data structures
     in = new board(rows,cols);
     out = new board(rows,cols);
@@ -132,10 +136,14 @@ int main(int argc, char* argv[]) {
             game_conf::set_test_conf_4(*in);
             break;
     }
-    //in.print();
+    #ifdef PRINT
+    in.print();
+    #endif
+
+    // time start
+    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
     // TODO: think about static splitting [particular case es: th_rows<1 ...]
-
     auto th_rows = rows / th_num;
     auto remains = rows % th_num;
 
@@ -153,7 +161,9 @@ int main(int argc, char* argv[]) {
         start = stop;
         stop = (remains > 0) ? start + th_rows : start + th_rows -1;
         t_data[i]  = {start, stop};
-        //std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
+        #ifdef PRINT
+        std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
+        #endif
         remains--;
         stop++;
     }
@@ -178,6 +188,16 @@ int main(int argc, char* argv[]) {
     // clean up
     pthread_attr_destroy(&attr);
     pthread_barrier_destroy(&barrier);
+
+    // time end
+    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+    std::cout << std::endl;
+    std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
+    std::cout << std::endl;
+
+    // data structures clean
     delete in;
     delete out;
 
