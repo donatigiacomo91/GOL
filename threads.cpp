@@ -3,6 +3,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <chrono>
 
 #include "board.h"
 #include "game_conf.h"
@@ -16,13 +17,17 @@
  *
  * */
 
+// #define PRINT
+
 // game data
 board* in;
 board* out;
 int game_iteration;
+
 // synchronization lock (some kind of barrier)
 std::mutex m;
 std::condition_variable cv;
+
 // synchronization variable
 int barrier_count = 0;
 int thread_number;
@@ -60,7 +65,6 @@ void body(int start, int stop) {
     //std::cout << "Thread n. " << std::this_thread::get_id() << " start executing..."<< std::endl;
 
     const auto col = in->m_width;
-    int iter = game_iteration;
     board* p_in = in;
     board* p_out = out;
 
@@ -69,7 +73,7 @@ void body(int start, int stop) {
     std::unique_lock<std::mutex> barrier(m, std::defer_lock);
 
     // game iteration
-    while(iter > 0) {
+    for (int k = 0; k < game_iteration; ++k) {
 
         for (auto i = start; i <= stop; ++i) {
             for (auto j = 0; j < col; ++j) {
@@ -81,14 +85,14 @@ void body(int start, int stop) {
         board* tmp = p_in;
         p_in = p_out;
         p_out = tmp;
-        // decrease iteration count
-        iter--;
 
         // TODO: check again the condition after wait() ???
         barrier.lock();
         barrier_count++;
         if (barrier_count == thread_number) {
-            //(*p_in).print();
+            #ifdef PRINT
+            (*p_in).print();
+            #endif
             // if all thread have complete unlock and notify all
             barrier_count = 0;
             barrier.unlock();
@@ -140,10 +144,14 @@ int main(int argc, char* argv[]) {
             game_conf::set_test_conf_4(*in);
             break;
     }
-    // in->print();
+    #ifdef PRINT
+    in.print();
+    #endif
+
+    // time start
+    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
     // TODO: think about static splitting [particular case es: th_rows<1 ...]
-
     auto th_rows = rows / thread_number;
     auto remains = rows % thread_number;
 
@@ -153,7 +161,9 @@ int main(int argc, char* argv[]) {
     for(auto i=0; i<thread_number; i++) {
         start = stop;
         stop = (remains > 0) ? start + th_rows : start + th_rows -1;
-        // std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
+        #ifdef PRINT
+        std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
+        #endif
         tid.push_back(std::thread(body, start, stop));
         remains--;
         stop++;
@@ -163,6 +173,15 @@ int main(int argc, char* argv[]) {
     for(int i=0; i<thread_number; i++)
         tid[i].join();
 
+    // time end
+    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+    std::cout << std::endl;
+    std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
+    std::cout << std::endl;
+
+    // data structures clean
     delete in;
     delete out;
 
