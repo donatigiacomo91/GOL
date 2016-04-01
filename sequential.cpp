@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 
 #include "board.h"
 #include "game_conf.h"
@@ -9,6 +10,8 @@
  * run with: ./seq.exe @row_number @colum_number @iteration_number [@configuration_number (from 1 to 4)]
  *
  * */
+
+// #define PRINT
 
 void update(int i, int j, board& in, board& out) {
 
@@ -72,28 +75,42 @@ int main(int argc, char* argv[]) {
             game_conf::set_test_conf_4(in);
             break;
     }
-    //in.print();
+    #ifdef PRINT
+    in.print();
+    #endif
 
+    // time start
+    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
     // game iteration
-    while(it_num > 0) {
+    for (int k = 0; k < it_num; ++k) {
 
         for (auto i = 0; i < rows; ++i) {
             for (auto j = 0; j < cols ; ++j) {
                 update(i,j,*p_in,*p_out);
-                //std::cout << (*p_out)[i][j] << " ";
             }
-            //std::cout << std::endl;
         }
+        #ifdef PRINT
+        (*p_out).print();
+        #endif
 
-        //swap pointer
+        // swap pointer
         board* tmp = p_in;
         p_in = p_out;
         p_out = tmp;
 
-        it_num--;
-        //std::cout << std::endl;
+        #ifdef PRINT
+        std::cout << std::endl;
+        #endif
     }
+
+    // time end
+    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+    std::cout << std::endl;
+    std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
+    std::cout << std::endl;
 
     return 0;
 }
