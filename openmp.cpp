@@ -81,6 +81,8 @@ int main(int argc, char* argv[]) {
     in.print();
     #endif
 
+    // time start
+    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
     // game iteration
     for (int k = 0; k < it_num; ++k) {
@@ -102,6 +104,14 @@ int main(int argc, char* argv[]) {
         p_in = p_out;
         p_out = tmp;
     }
+
+    // time end
+    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+    std::cout << std::endl;
+    std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
+    std::cout << std::endl;
 
     return 0;
 }
