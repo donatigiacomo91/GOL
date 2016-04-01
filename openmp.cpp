@@ -85,14 +85,23 @@ int main(int argc, char* argv[]) {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
     // game iteration
-    for (int k = 0; k < it_num; ++k) {
+    for (int z = 0; z < it_num; ++z) {
 
-        #pragma omp parallel for collapse(2) num_threads(th_num)
-        for (auto i = 0; i < rows; ++i) {
-            for (auto j = 0; j < cols; ++j) {
-                update(i, j, *p_in, *p_out);
-            }
-        }
+        //#pragma omp parallel for collapse(2) num_threads(th_num)
+        //for (auto i = 0; i < rows; ++i) {
+        //    for (auto j = 0; j < cols; ++j) {
+        //        update(i, j, *p_in, *p_out);
+        //    }
+        //}
+
+	int i = -1, j = 0;
+	#pragma omp parallel for num_threads(th_num)
+	for (auto k = 0; k < rows*cols; k++) {
+	    j = k%cols;
+	    i = (j==0) ? ++i : i;
+	    //std::cout << i << "," << j << std::endl;
+	    update(i, j, *p_in, *p_out);
+	}
 
         #ifdef PRINT
         (*p_out).print();
