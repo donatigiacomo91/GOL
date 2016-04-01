@@ -92,6 +92,7 @@ void body(int start, int stop) {
         if (barrier_count == thread_number) {
             #ifdef PRINT
             (*p_in).print();
+            std::cout << std::endl;
             #endif
             // if all thread have complete unlock and notify all
             barrier_count = 0;

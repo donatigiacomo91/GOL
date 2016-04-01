@@ -1,5 +1,6 @@
 #include <iostream>
 #include <omp.h>
+#include <chrono>
 
 #include "board.h"
 #include "game_conf.h"
@@ -11,6 +12,7 @@
  *
  * */
 
+// #define PRINT
 
 void update(int i, int j, board& in, board& out) {
 
@@ -75,7 +77,9 @@ int main(int argc, char* argv[]) {
             game_conf::set_test_conf_4(in);
             break;
     }
-    // in.print();
+    #ifdef PRINT
+    in.print();
+    #endif
 
 
     // game iteration
@@ -87,14 +91,16 @@ int main(int argc, char* argv[]) {
                 update(i, j, *p_in, *p_out);
             }
         }
-        // (*p_out).print();
+
+        #ifdef PRINT
+        (*p_out).print();
+        std::cout << std::endl;
+        #endif
 
         //swap pointer
         board *tmp = p_in;
         p_in = p_out;
         p_out = tmp;
-
-        // std::cout << std::endl;
     }
 
     return 0;

@@ -88,6 +88,7 @@ void* body(void* arg) {
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
             #ifdef PRINT
             (*p_in).print();
+            std::cout << std::endl;
             #endif
         } else if(res != 0) {
             // error occurred

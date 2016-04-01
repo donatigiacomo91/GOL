@@ -92,16 +92,13 @@ int main(int argc, char* argv[]) {
         }
         #ifdef PRINT
         (*p_out).print();
+        std::cout << std::endl;
         #endif
 
         // swap pointer
         board* tmp = p_in;
         p_in = p_out;
         p_out = tmp;
-
-        #ifdef PRINT
-        std::cout << std::endl;
-        #endif
     }
 
     // time end
