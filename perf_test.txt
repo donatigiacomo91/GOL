@@ -27,6 +27,12 @@ PHI:
 		./pthread.exe 1000 1000 400 8
 		avg time: 1.528s
 
+		RESULT:
+			- sp(1) = 0.99    
+			- sp(2) = 0.92    scalab(2) = 0.93    eff(2) = 0.46
+			- sp(4) = 2.98    scalab(4) = 3.05    eff(4) = 0.74
+			- sp(8) = 4       scalab(8) = 4       eff(8) = 0.5
+
 
 		./pthread.exe 1400 1400 200 1
 		avg time: 6.248s
@@ -38,7 +44,14 @@ PHI:
 		avg time: 2.663s
 
 		./pthread.exe 1400 1400 200 8
-		avg time: 1358s
+		avg time: 1.358s
+
+		RESULT:
+			- sp(1) = 1    
+			- sp(2) = 1      scalab(2) = 1       eff(2) = 0.5
+			- sp(4) = 2.4    scalab(4) = 2.3     eff(4) = 0.6
+			- sp(8) = 4.8    scalab(8) = 4.7     eff(8) = 0.6
+
 
 
 	- ompenmp.cpp :
@@ -55,6 +68,12 @@ PHI:
 		./openmp.exe 1000 1000 400 8
 		avg time: 1.9s
 
+		RESULT:
+			- sp(1) = 0.53    
+			- sp(2) = 1.05   scalab(2) = 1.94     eff(2) = 0.52
+			- sp(4) = 1.9    scalab(4) = 3.4      eff(4) = 0.47
+			- sp(8) = 3.2    scalab(8) = 5.9      eff(8) = 0.4
+
 
 		./openmp.exe 1400 1400 200 1
 		avg time: 11.3
@@ -67,6 +86,9 @@ PHI:
 
 		./openmp.exe 1400 1400 200 8
 		avg time: 1.8s
+
+		RESULT:
+			- almost the same as previous configuration
 
 MIC0:
 
@@ -94,6 +116,14 @@ MIC0:
 
 		./pthread.exe 1000 1000 100 32
 		avg time: 0.550s
+
+		RESULT:
+			- sp(1) = 1.09    
+			- sp(2) = 2.1     scalab(2) = 1.9     eff(2) = 1.05
+			- sp(4) = 4.4     scalab(4) = 4.0     eff(4) = 1.1
+			- sp(8) = 8.8     scalab(8) = 8.0     eff(8) = 1.1
+			- sp(16) = 16.5   scalab(16) = 15.1     eff(16) = 1.03
+			- sp(32) = 27.2   scalab(32) = 24.9     eff(32) = 0.85
 
 
 	- ompenmp.cpp :
