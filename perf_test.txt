@@ -1,0 +1,103 @@
+PERFORMACE TEST 1 - GOL - 04/03/16 :
+
+Note: Times are measured as average of 5 execution.
+
+PHI:
+
+	- sequential.cpp :
+		
+		./seq.exe 1000 1000 400 
+		avg time: 6.160s
+
+		./seq.exe 1400 1400 200
+		avg time: 6.326s
+
+
+	- pthread.cpp :
+
+		./pthread.exe 1000 1000 400 1
+		avg time: 6.194s
+
+		./pthread.exe 1000 1000 400 2
+		avg time: 6.642s
+
+		./pthread.exe 1000 1000 400 4
+		avg time: 2.067s
+
+		./pthread.exe 1000 1000 400 8
+		avg time: 1.528s
+
+
+		./pthread.exe 1400 1400 200 1
+		avg time: 6.248s
+
+		./pthread.exe 1400 1400 200 2
+		avg time: 6.107s
+
+		./pthread.exe 1400 1400 200 4
+		avg time: 2.663s
+
+		./pthread.exe 1400 1400 200 8
+		avg time: 1358s
+
+
+	- ompenmp.cpp :
+
+		./openmp.exe 1000 1000 400 1
+		avg time: 11.3s
+
+		./openmp.exe 1000 1000 400 2
+		avg time: 5.8s
+
+		./openmp.exe 1000 1000 400 4
+		avg time: 3.3s
+
+		./openmp.exe 1000 1000 400 8
+		avg time: 1.9s
+
+
+		./openmp.exe 1400 1400 200 1
+		avg time: 11.3
+
+		./openmp.exe 1400 1400 200 2
+		avg time: 5.7s
+
+		./openmp.exe 1400 1400 200 4
+		avg time: 3.2s
+
+		./openmp.exe 1400 1400 200 8
+		avg time: 1.8s
+
+MIC0:
+
+- sequential.cpp :
+		
+		./seq.exe 1000 1000 100 
+		avg time: 15s
+
+	- pthread.cpp :
+
+		./pthread.exe 1000 1000 100 1
+		avg time: 13.7s
+
+		./pthread.exe 1000 1000 100 2
+		avg time: 6.9s
+
+		./pthread.exe 1000 1000 100 4
+		avg time: 3.4s
+
+		./pthread.exe 1000 1000 100 8
+		avg time: 1.7s
+
+		./pthread.exe 1000 1000 100 16
+		avg time: 0.907s
+
+		./pthread.exe 1000 1000 100 32
+		avg time: 0.550s
+
+
+	- ompenmp.cpp :
+
+		get lib error
+
+
