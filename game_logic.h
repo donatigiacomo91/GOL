@@ -5,6 +5,8 @@
 #ifndef GOL_GAME_LOGIC_H
 #define GOL_GAME_LOGIC_H
 
+#include "board.h"
+
 namespace game_logic {
 
     // pure game of life logic read the "in" matrix
@@ -35,6 +37,7 @@ namespace game_logic {
             out[i][j] = (sum < 2 || sum > 3) ? 0 : 1;
             return;
         }
+        // out[i][j] = (sum == 3 || sum+in[i][j] == 3) ? 1 : 0;
     }
 
 

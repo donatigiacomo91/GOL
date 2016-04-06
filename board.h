@@ -7,13 +7,12 @@
 #include <mm_malloc.h>
 #endif // defined(__GNUC__) */
 
-#include <stdlib.h>
 #include <cstdlib>
 #include <iostream>
 
 class board {
-    int* matrix;
 public:
+    int* matrix;
     std::size_t m_width;
     std::size_t m_height;
 

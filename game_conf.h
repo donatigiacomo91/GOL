@@ -5,6 +5,9 @@
 #ifndef GOL_GAME_CONF_H
 #define GOL_GAME_CONF_H
 
+#include <cstdlib>
+#include "board.h"
+
 namespace game_conf {
 
     void set_random_conf(board& b) {
