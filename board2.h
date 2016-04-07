@@ -25,7 +25,10 @@ public:
     board2(int rows, int columns) {
         m_width = columns+2;
         m_height = rows+2;
-        matrix = (int*) malloc(m_width * m_height * sizeof(int));
+        //matrix = (int*) malloc(m_width * m_height * sizeof(int));
+        auto size = m_width * m_height * sizeof(int);
+        size = size + size % sizeof(int);
+        matrix = (int*) aligned_alloc(sizeof(int), size);
         fill_random();
     }
 

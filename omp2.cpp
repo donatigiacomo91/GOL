@@ -4,7 +4,7 @@
 #include "board2.h"
 
 /*
- * compile with: g++-5 openmp2.cpp -std=c++11 -O3 -fopenmp -o openmp2.exe
+ * compile with: g++-5 omp2.cpp -std=c++11 -O3 -fopenmp -o omp2.exe
  */
 
 // cache efficient version, the board is extended with additional border to allow
