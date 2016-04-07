@@ -5,11 +5,11 @@
 #ifndef GOL_BOARD2_H
 #define GOL_BOARD2_H
 
-/* #if defined(__INTEL_COMPILER)
+#if defined(__INTEL_COMPILER)
 #include <malloc.h>
 #else
 #include <mm_malloc.h>
-#endif // defined(__GNUC__) */
+#endif // defined(__GNUC__)
 
 #include <cstdlib>
 #include <iostream>
@@ -25,12 +25,15 @@ public:
     board2(int rows, int columns) {
         m_width = columns+2;
         m_height = rows+2;
-        matrix = (int*) malloc(m_width * m_height * sizeof(int));
+        //matrix = (int*) malloc(m_width * m_height * sizeof(int));
+        auto size = m_width * m_height * sizeof(int);
+        size += size%16;
+        matrix = (int*) _mm_malloc(size, 16);
         fill_random();
     }
 
     ~board2() {
-        free(matrix);
+        _mm_free(matrix);
     }
 
     void fill_random() {

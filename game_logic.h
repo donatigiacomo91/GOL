@@ -25,19 +25,19 @@ namespace game_logic {
                    + in[low_p][left_p] + in[low_p][j] + in[low_p][right_p];
 
         // empty cell
-        if (in[i][j] == 0) {
-            // with exactly 3 alive neighbours alive otherwise die
-            out[i][j] = (sum == 3) ? 1 : 0;
-            return;
-        }
-        // alive cell
-        if (in[i][j] == 1) {
-            // with less then 2 or more than 3 alive neighbours then die
-            // otherwise keep alive
-            out[i][j] = (sum < 2 || sum > 3) ? 0 : 1;
-            return;
-        }
-        // out[i][j] = (sum == 3 || sum+in[i][j] == 3) ? 1 : 0;
+//        if (in[i][j] == 0) {
+//            // with exactly 3 alive neighbours alive otherwise die
+//            out[i][j] = (sum == 3) ? 1 : 0;
+//            return;
+//        }
+//        // alive cell
+//        if (in[i][j] == 1) {
+//            // with less then 2 or more than 3 alive neighbours then die
+//            // otherwise keep alive
+//            out[i][j] = (sum < 2 || sum > 3) ? 0 : 1;
+//            return;
+//        }
+        out[i][j] = (sum == 3 || sum+in[i][j] == 3) ? 1 : 0;
     }
 
 
