@@ -1,18 +1,16 @@
-#include "board2.h"
 #include <chrono>
+#include <omp.h>
 
-#include <iostream>
+#include "board2.h"
 
 /*
- * compile with: g++ -std=c++11 -O3 sequential2.cpp -o seq2.exe
+ * compile with: g++-5 openmp2.cpp -std=c++11 -O3 -fopenmp -o openmp2.exe
  */
 
 // cache efficient version, the board is extended with additional border to allow
 // a linear scan of the memory with tree indices that compute the neighbour sum
 //
 // the two board (implemented as contiguous memory) are read and write in a perfect linear way
-
-//#define PRINT
 
 int main(int argc, char* argv[]) {
 
@@ -21,8 +19,8 @@ int main(int argc, char* argv[]) {
     auto cols = atoi(argv[2]);
     // iteration number
     auto it_num = atoi(argv[3]);
-    // starting configuration
-    //auto conf_num = (argc>4) ? atoi(argv[4]) : 0;
+    // parallelism degree
+    auto th_num = atoi(argv[4]);
 
     // data structures
     board2 in(rows,cols);
@@ -33,27 +31,6 @@ int main(int argc, char* argv[]) {
     // matrix data pointer;
     int* matrix_in;
     int* matrix_out;
-
-//    switch (conf_num) {
-//        case 0:
-//            game_conf::set_random_conf(in);
-//            break;
-//        case 1 :
-//            game_conf::set_test_conf_1(in);
-//            break;
-//        case 2 :
-//            game_conf::set_test_conf_2(in);
-//            break;
-//        case 3:
-//            game_conf::set_test_conf_3(in);
-//            break;
-//        case 4:
-//            game_conf::set_test_conf_4(in);
-//            break;
-//    }
-#ifdef PRINT
-    in.print();
-#endif
 
     // time start
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -69,11 +46,12 @@ int main(int argc, char* argv[]) {
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
 
+        #pragma omp parallel for num_threads(th_num)
         for (int i = 1; i <= rows * cols; ++i) {
 
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
-                        + matrix_in[curr_p-1] + matrix_in[curr_p+1]
-                        + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
+                       + matrix_in[curr_p-1] + matrix_in[curr_p+1]
+                       + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
 
             // empty cell
             if (matrix_in[curr_p] == 0) {
@@ -84,8 +62,6 @@ int main(int argc, char* argv[]) {
                 // otherwise keep alive
                 matrix_out[curr_p] = (sum < 2 || sum > 3) ? 0 : 1;
             }
-
-            //std::cout << up_p << ", " << curr_p << ", " << low_p << std::endl;
 
             up_p = (i%cols == 0) ? up_p+3 : up_p+1;
             curr_p = (i%cols == 0) ? curr_p+3 : curr_p+1;
@@ -111,11 +87,6 @@ int main(int argc, char* argv[]) {
             // copy first row in last row
             matrix_out[end+j] = matrix_out[start+j];
         }
-
-#ifdef PRINT
-        (*p_out).print();
-        std::cout << std::endl;
-#endif
 
         // swap pointer
         board2* tmp = p_in;
