@@ -6,18 +6,18 @@
 #define GOL_GAME_CONF_H
 
 #include <cstdlib>
-#include "board.h"
+#include "old_board.h"
 
 namespace game_conf {
 
-    void set_random_conf(board& b) {
+    void set_random_conf(old_board & b) {
         for(auto i=0; i<b.m_height; i++)
             for(auto j=0; j<b.m_width; j++)
                 b[i][j] = rand()%2;
     }
 
     // Beacon test conf (periodic)
-    void set_test_conf_1(board& b) {
+    void set_test_conf_1(old_board & b) {
         b[0][0] = 1;
         b[0][1] = 1;
         b[1][0] = 1;
@@ -30,7 +30,7 @@ namespace game_conf {
     }
 
     // Blinker test conf (periodic)
-    void set_test_conf_2(board& b) {
+    void set_test_conf_2(old_board & b) {
         b[b.m_height/2][b.m_width/2] = 1;
         b[b.m_height/2][b.m_width/2+1] = 1;
         b[b.m_height/2][b.m_width/2-1] = 1;
@@ -38,7 +38,7 @@ namespace game_conf {
 
     // Glider test conf (dynamic)
     // note: in a 10x10 matrix come back to initial conf in 40 iterations
-    void set_test_conf_3(board& b) {
+    void set_test_conf_3(old_board & b) {
         b[0][1] = 1;
         b[1][2] = 1;
         b[2][0] = 1;
@@ -47,7 +47,7 @@ namespace game_conf {
     }
 
     // Beehive test conf (static)
-    void set_test_conf_4(board& b) {
+    void set_test_conf_4(old_board & b) {
         b[0][1] = 1;
         b[0][2] = 1;
         b[1][0] = 1;

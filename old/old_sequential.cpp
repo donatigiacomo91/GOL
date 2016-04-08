@@ -1,19 +1,18 @@
 #include <iostream>
-#include <omp.h>
 #include <chrono>
 
-#include "board.h"
-#include "game_logic.h"
-#include "game_conf.h"
+#include "old_board.h"
+#include "old_game_logic.h"
+#include "old_game_conf.h"
 
 /*
  *
- * compile with: g++-5 openmp.cpp -std=c++11 -O3 -fopenmp -o openmp.exe
- * run with:
+ * compile with: g++ -std=c++11 -O3 sequential.cpp -o seq.exe
+ * run with: ./seq.exe @row_number @colum_number @iteration_number [@configuration_number (from 1 to 4)]
  *
  * */
 
-// #define PRINT
+//#define PRINT
 
 int main(int argc, char* argv[]) {
 
@@ -22,16 +21,15 @@ int main(int argc, char* argv[]) {
     auto cols = atoi(argv[2]);
     // iteration number
     auto it_num = atoi(argv[3]);
-    auto th_num = atoi(argv[4]);
     // starting configuration
-    auto conf_num = (argc>5) ? atoi(argv[5]) : 0;
+    auto conf_num = (argc>4) ? atoi(argv[4]) : 0;
 
     // data structures
-    board in(rows,cols);
-    board out(rows,cols);
+    old_board in(rows, cols);
+    old_board out(rows, cols);
     // data pointers
-    board* p_in = &in;
-    board* p_out = &out;
+    old_board * p_in = &in;
+    old_board * p_out = &out;
 
     switch (conf_num) {
         case 0:
@@ -58,22 +56,20 @@ int main(int argc, char* argv[]) {
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
     // game iteration
-    for (int z = 0; z < it_num; ++z) {
+    for (int k = 0; k < it_num; ++k) {
 
-        #pragma omp parallel for collapse(2) num_threads(th_num)
         for (auto i = 0; i < rows; ++i) {
-            for (auto j = 0; j < cols; ++j) {
-                game_logic::update(i, j, *p_in, *p_out);
+            for (auto j = 0; j < cols ; ++j) {
+                game_logic::update(i,j,*p_in,*p_out);
             }
         }
-        
         #ifdef PRINT
         (*p_out).print();
         std::cout << std::endl;
         #endif
 
-        //swap pointer
-        board *tmp = p_in;
+        // swap pointer
+        old_board * tmp = p_in;
         p_in = p_out;
         p_out = tmp;
     }

@@ -1,7 +1,7 @@
 #include <chrono>
 #include <omp.h>
 
-#include "board2.h"
+#include "board.h"
 
 /*
  * compile with: g++-5 omp2.cpp -std=c++11 -O3 -fopenmp -o omp2.exe

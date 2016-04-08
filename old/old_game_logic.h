@@ -5,13 +5,13 @@
 #ifndef GOL_GAME_LOGIC_H
 #define GOL_GAME_LOGIC_H
 
-#include "board.h"
+#include "old_board.h"
 
 namespace game_logic {
 
     // pure game of life logic read the "in" matrix
     // and compute the next game state in the "out" matrix
-    void update(int i, int j, board& in, board& out) {
+    void update(int i, int j, old_board & in, old_board & out) {
 
         // upper and lower row indices
         auto up_p = (i-1) >= 0 ? (i-1) : (in.m_height-1);
