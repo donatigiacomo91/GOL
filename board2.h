@@ -25,7 +25,6 @@ public:
     board2(int rows, int columns) {
         m_width = columns+2;
         m_height = rows+2;
-        //matrix = (int*) malloc(m_width * m_height * sizeof(int));
         auto size = m_width * m_height * sizeof(int);
         size += size%16;
         matrix = (int*) _mm_malloc(size, 16);

@@ -69,27 +69,37 @@ int main(int argc, char* argv[]) {
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
 
-        #pragma ivdep
-        for (int i = 1; i <= rows * cols; ++i) {
+//        for (int i = 1; i <= rows * cols; ++i) {
+//
+//            // compute alive neighbours
+//            auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
+//                        + matrix_in[curr_p-1] + matrix_in[curr_p+1]
+//                        + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
+//
+//            // set the current cell state
+//            matrix_out[curr_p] = (sum == 3) || (sum+matrix_in[curr_p] == 3) ? 1 : 0;
+//
+//            // move the pointers (by 3 to skip the border computation)
+//            up_p = (i%cols == 0) ? up_p+3 : up_p+1;
+//            curr_p = (i%cols == 0) ? curr_p+3 : curr_p+1;
+//            low_p = (i%cols == 0) ? low_p+3 : low_p+1;
+//
+//        }
 
+        for (int i = 0; i < in.m_width * rows; ++i) {
+
+            // compute alive neighbours
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
-                        + matrix_in[curr_p-1] + matrix_in[curr_p+1]
-                        + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
+                       + matrix_in[curr_p-1] + matrix_in[curr_p+1]
+                       + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
 
-            // empty cell
-//            if (matrix_in[curr_p] == 0) {
-//                // with exactly 3 alive neighbours alive otherwise keep empty
-//                matrix_out[curr_p] = (sum == 3) ? 1 : 0;
-//            } else if (matrix_in[curr_p] == 1) {
-//                // with less then 2 or more than 3 alive neighbours then die
-//                // otherwise keep alive
-//                matrix_out[curr_p] = (sum < 2 || sum > 3) ? 0 : 1;
-//            }
+            // set the current cell state
             matrix_out[curr_p] = (sum == 3) || (sum+matrix_in[curr_p] == 3) ? 1 : 0;
 
-            up_p = (i%cols == 0) ? up_p+3 : up_p+1;
-            curr_p = (i%cols == 0) ? curr_p+3 : curr_p+1;
-            low_p = (i%cols == 0) ? low_p+3 : low_p+1;
+            // move the pointers
+            up_p++;
+            curr_p++;
+            low_p++;
 
         }
 
