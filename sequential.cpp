@@ -2,7 +2,7 @@
 #include <chrono>
 
 /*
- * compile with: g++ -std=c++11 -O3 sequential2.cpp -o seq2.exe [-no-vec]
+ * local compile with: g++-5 -std=c++11 -O3 sequential.cpp -o seq.exe
  */
 
 // cache efficient version, the board is extended with additional border to allow
