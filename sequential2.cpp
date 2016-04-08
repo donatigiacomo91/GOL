@@ -86,6 +86,7 @@ int main(int argc, char* argv[]) {
 //
 //        }
 
+        // vectorization here report a potencial speedup of 3.5
 	#pragma ivdep
         for (int i = 0; i < (cols+2) * rows; ++i) {
 
@@ -106,7 +107,8 @@ int main(int argc, char* argv[]) {
 
         // fill left and right border
         int left, right;
-        for (int i = 1; i < in.m_height ; i++) {
+        // no vectorization here (not contigous memory access make it unefficent)
+        for (int i = 1; i < (rows+2) ; i++) {
             left = i*in.m_width;
             right = left+in.m_width-1;
             matrix_out[left] = matrix_out[right-1];
@@ -116,10 +118,12 @@ int main(int argc, char* argv[]) {
         // fill top and bottom border
         int start = in.m_width; // second row starting index
         int end = (in.m_height-1)*in.m_width; // last row starting index
+        // vectorization here report a potencial speedup of 1.2
+        #pragma ivdep
         for (int j = 0; j < start; ++j) {
-            // copy last row in first row
+            // copy last real row in first row (the border)
             matrix_out[j] = matrix_out[end-in.m_width+j];
-            // copy first row in last row
+            // copy first real row in last row (the border)
             matrix_out[end+j] = matrix_out[start+j];
         }
 
