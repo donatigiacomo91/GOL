@@ -86,7 +86,8 @@ int main(int argc, char* argv[]) {
 //
 //        }
 
-        for (int i = 0; i < in.m_width * rows; ++i) {
+	#pragma ivdep
+        for (int i = 0; i < (cols+2) * rows; ++i) {
 
             // compute alive neighbours
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]

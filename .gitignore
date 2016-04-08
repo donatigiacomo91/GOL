@@ -4,5 +4,5 @@
 # Clion
 .idea
 
-# Plain Text
-.rtf
+# Compiler report 
+*.optrpt
