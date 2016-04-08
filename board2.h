@@ -1,7 +1,3 @@
-//
-// Created by Giacomo Donati on 06/04/16.
-//
-
 #ifndef GOL_BOARD2_H
 #define GOL_BOARD2_H
 
@@ -28,21 +24,20 @@ public:
         auto size = m_width * m_height * sizeof(int);
         size += size%sizeof(int);
         matrix = (int*) _mm_malloc(size, sizeof(int));
-        fill_random();
+        std::fill(matrix, matrix+size, 0);
     }
 
     ~board2() {
         _mm_free(matrix);
     }
 
-    void fill_random() {
-
+    void set_random() {
         // second row starting index
         int start = m_width;
         // last row starting index
         int end = (m_height-1)*m_width;
 
-        // fill the inner part with random value
+        // fill the inner part (game part) with random value
         int line_count = 0;
         for (int i = start; i < end ; ++i) {
             // (line_count == 0 || line_count == m_width-1) => boarder
@@ -50,7 +45,7 @@ public:
             line_count = (line_count+1)%m_width;
         }
 
-        // fill left and right border
+        // set left and right border
         int left, right;
         for (int i = 1; i < m_height ; i++) {
             left = i*m_width;
@@ -59,14 +54,32 @@ public:
             matrix[right] = matrix[left+1];
         }
 
+        // set upper and bottom border
         for (int j = 0; j < start; ++j) {
             // copy last row in first row
             matrix[j] = matrix[end-m_width+j];
             // copy first row in last row
             matrix[end+j] = matrix[start+j];
         }
+    }
 
+    // periodic conf
+    void setBlinker() {
+        auto i = m_width*3 + m_height/2;
+        matrix[i-1] = 1;
+        matrix[i] = 1;
+        matrix[i+1] = 1;
+    }
 
+    // static conf
+    void setBeehive() {
+        auto i = m_width*3 + m_height/3;
+        matrix[i-m_width+1] = 1;
+        matrix[i-m_width+2] = 1;
+        matrix[i] = 1;
+        matrix[i+3] = 1;
+        matrix[i+m_width+1] = 1;
+        matrix[i+m_width+2] = 1;
     }
 
     void print() {
