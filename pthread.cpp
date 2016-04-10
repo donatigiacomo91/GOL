@@ -106,7 +106,9 @@ void* body(void* arg) {
 
         // synchronization point
         int res = pthread_barrier_wait(&barrier);
-        if(res != 0) {
+        if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
+            // nothing to do
+        } else if(res != 0) {
             std::cout << "Barrier error n." << res << std::endl;
         }
 
