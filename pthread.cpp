@@ -105,7 +105,8 @@ void* body(void* arg) {
         p_out = tmp;
 
         // synchronization point
-        if(int res = pthread_barrier_wait(&barrier) != 0) {
+        int res = pthread_barrier_wait(&barrier);
+        if(res != 0) {
             std::cout << "Barrier error n." << res << std::endl;
         }
 
