@@ -10,3 +10,4 @@ add_executable(OLD_OMP old/old_openmp.cpp old/old_board.h old/old_game_conf.h ol
 
 add_executable(SEQ sequential.cpp board.h)
 add_executable(OMP omp.cpp board.h)
+add_executable(PTHR pthread.cpp board.h)
