@@ -35,31 +35,78 @@ void* body(void* arg) {
     int stop = data->_stop;
 
     // columns number
-    const auto col = p_in->m_width;
+    const auto cols = p_in->m_width;
+    const auto rows = p_in->m_height;
+
+    int* matrix_in;
+    int* matrix_out;
+
+    // current, upper and lower indices
+    auto up_p = start*cols + 1;
+    auto curr_p = up_p + cols;
+    auto low_p = curr_p + cols;
 
     // game iteration
-    auto assing = 1;
     for (int k = 0; k < iter_num; ++k) {
 
-        for (auto i = start; i <= stop; ++i) {
-            for (auto j = 0; j < col; ++j) {
-                assing += assing*(j+i);
+        matrix_in = p_in->matrix;
+        matrix_out = p_out->matrix;
+
+        const auto assigned_row_num = (stop-start+1);
+
+        #pragma ivdep
+        for (int i = 0; i < assigned_row_num*cols; ++i) {
+
+            // compute alive neighbours
+            auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
+                       + matrix_in[curr_p-1] + matrix_in[curr_p+1]
+                       + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
+
+            // set the current cell state
+            matrix_out[curr_p] = (sum == 3) || (sum+matrix_in[curr_p] == 3) ? 1 : 0;
+
+            // move the pointers
+            up_p++;
+            curr_p++;
+            low_p++;
+        }
+
+        // set left and right border
+        int left = start*cols + cols;
+        int right = left+cols - 1;
+        // no vectorization here (noncontiguous memory access make it inefficient)
+        for (int i = 0; i < assigned_row_num; i++) {
+            matrix_out[left] = matrix_out[right-1];
+            matrix_out[right] = matrix_out[left+1];
+            left += cols;
+            right += cols;
+        }
+
+
+        // thread that compute the first row have to copy it as bottom border
+        if (start == 0) {
+            const auto sr_index = cols;
+            const auto bb_index = (rows-1)*cols;
+            for (int i = 0; i < cols; ++i) {
+                matrix_out[bb_index] = matrix_out[sr_index+i];
+            }
+        }
+        // thread that compute the last row have to copy it as upper border
+        if (stop == rows) {
+            const auto slr_index = (rows-2)*cols;
+            for (int ub_index = 0; ub_index < cols; ++ub_index) {
+                matrix_out[ub_index] = matrix_out[slr_index+ub_index];
             }
         }
 
-//        // swap pointer
-//        board * tmp = p_in;
-//        p_in = p_out;
-//        p_out = tmp;
+        // swap board pointers
+        board * tmp = p_in;
+        p_in = p_out;
+        p_out = tmp;
 
-        std::cout << "th complete" << std::endl;
-        int res = pthread_barrier_wait(&barrier);
-        if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
-            usleep(100000);
-            std::cout << "serial th." << std::endl;
-        } else if(res != 0) {
-            // error occurred
-            std::cout << "ERROR in barrier n." << res << std::endl;
+        // synchronization point
+        if(int res = pthread_barrier_wait(&barrier) != 0) {
+            std::cout << "Barrier error n." << res << std::endl;
         }
 
     }
