@@ -28,8 +28,6 @@ int iter_num;
 
 void* body(void* arg) {
 
-    std::cout << "body" << std::endl;
-
     thread_data* data = (thread_data*) arg;
     board * p_in = in;
     board * p_out = out;
@@ -54,6 +52,7 @@ void* body(void* arg) {
 //        p_in = p_out;
 //        p_out = tmp;
 
+        std::cout << "th complete" << std::endl;
         int res = pthread_barrier_wait(&barrier);
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
             usleep(100000);
