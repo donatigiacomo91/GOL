@@ -57,8 +57,8 @@ int main(int argc, char* argv[]) {
         matrix_out = p_out->matrix;
 
         // vectorization here report a potential speedup of 3.5
+        #pragma omp parallel for num_threads(th_num) schedule(static)
         #pragma ivdep
-        #pragma omp parallel for num_threads(th_num)
         for (int i = 0; i < (cols+2) * rows; ++i) {
 
             // compute alive neighbours
