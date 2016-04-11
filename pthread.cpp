@@ -99,6 +99,11 @@ void* body(void* arg) {
             }
         }
 
+        #ifdef PRINT
+        (*p_out).print(start,stop);
+        std::cout << std::endl;
+        #endif
+
         // swap board pointers
         board * tmp = p_in;
         p_in = p_out;
