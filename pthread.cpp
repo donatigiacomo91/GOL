@@ -88,7 +88,7 @@ void* body(void* arg) {
             const auto sr_index = cols;
             const auto bb_index = (rows-1)*cols;
             for (int i = 0; i < cols; ++i) {
-                matrix_out[bb_index] = matrix_out[sr_index+i];
+                matrix_out[bb_index+i] = matrix_out[sr_index+i];
             }
         }
         // thread that compute the last row have to copy it as upper border
@@ -99,11 +99,6 @@ void* body(void* arg) {
             }
         }
 
-        #ifdef PRINT
-        (*p_out).print(start,stop);
-        std::cout << std::endl;
-        #endif
-
         // swap board pointers
         board * tmp = p_in;
         p_in = p_out;
@@ -113,8 +108,16 @@ void* body(void* arg) {
         int res = pthread_barrier_wait(&barrier);
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
             // nothing to do
+            #ifdef PRINT
+            (*p_in).print();
+            std::cout << std::endl;
+            #endif
         } else if(res != 0) {
             std::cout << "Barrier error n." << res << std::endl;
+        } else {
+            #ifdef PRINT
+            usleep(50000);
+            #endif
         }
 
     }

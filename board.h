@@ -72,7 +72,7 @@ public:
 
     // static conf
     void set_beehive() {
-        auto i = m_width*3 + m_height/3;
+        auto i = m_width*2 + m_height/3;
         matrix[i-m_width+1] = 1;
         matrix[i-m_width+2] = 1;
         matrix[i] = 1;
