@@ -55,7 +55,7 @@ void* body(void* arg) {
         const auto assigned_row_num = (stop-start+1);
 
         #pragma ivdep
-        for (int i = 0; i < assigned_row_num*cols; ++i) {
+        for (int i = 1; i < assigned_row_num*cols; ++i) {
 
             // compute alive neighbours
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
@@ -92,7 +92,7 @@ void* body(void* arg) {
             }
         }
         // thread that compute the last row have to copy it as upper border
-        if (stop == rows) {
+        if (stop == rows-3) {
             const auto slr_index = (rows-2)*cols;
             for (int ub_index = 0; ub_index < cols; ++ub_index) {
                 matrix_out[ub_index] = matrix_out[slr_index+ub_index];
