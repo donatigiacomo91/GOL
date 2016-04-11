@@ -41,10 +41,7 @@ void* body(void* arg) {
     int* matrix_in;
     int* matrix_out;
 
-    // current, upper and lower indices
-    auto up_p = start*cols + 1;
-    auto curr_p = up_p + cols;
-    auto low_p = curr_p + cols;
+    const auto assigned_row_num = (stop-start+1);
 
     // game iteration
     for (int k = 0; k < iter_num; ++k) {
@@ -52,7 +49,10 @@ void* body(void* arg) {
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
 
-        const auto assigned_row_num = (stop-start+1);
+        // current, upper and lower indices
+        auto up_p = start*cols + 1;
+        auto curr_p = up_p + cols;
+        auto low_p = curr_p + cols;
 
         #pragma ivdep
         for (int i = 1; i < assigned_row_num*cols; ++i) {
