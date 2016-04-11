@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
         // set left and right border
         int left, right;
         // no vectorization here (noncontiguous memory access make it inefficient)
-        #pragma omp parallel for num_threads(th_num)
+        #pragma omp parallel for num_threads(th_num) schedule(static)
         for (int i = 1; i < (rows+2) ; i++) {
             left = i*in.m_width;
             right = left+in.m_width-1;
@@ -90,8 +90,8 @@ int main(int argc, char* argv[]) {
         int start = in.m_width; // second row starting index
         int end = (in.m_height-1)*in.m_width; // last row starting index
         // vectorization here report a potential speedup of 1.2
+        #pragma omp parallel for num_threads(th_num) schedule(static)
         #pragma ivdep
-        #pragma omp parallel for num_threads(th_num)
         for (int j = 0; j < start; ++j) {
             // copy last real row in upper border (first row)
             matrix_out[j] = matrix_out[end-in.m_width+j];
