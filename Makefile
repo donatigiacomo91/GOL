@@ -17,7 +17,7 @@ m_omp:
 	icc omp.cpp -std=c++11 -O3 -fopenmp -mmic -o m_omp.exe
 
 fastflow:
-	icc fastflow.cpp -std=c++11 -O3 -pthread -DNO_DEFAULT_MAPPING -I /home/spm1501/fastflow
+	icc fastflow.cpp -std=c++11 -O3 -pthread -DNO_DEFAULT_MAPPING -I /home/spm1501/fastflow -o ff.exe
 
 clean:
 	rm *.exe

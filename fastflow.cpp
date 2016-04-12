@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
         matrix_out = p_out->matrix;
 
         // TODO: how vectorize this loop?
-        pf.parallel_for(1, (cols+2) * rows, 1, [&](const long i) {
+        pf.parallel_for(1, (cols+2) * rows, 1, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
 
             // compute alive neighbours
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
