@@ -59,7 +59,26 @@ int main(int argc, char* argv[]) {
         matrix_out = p_out->matrix;
 
         // TODO: how vectorize this loop?
-        pf.parallel_for(1, (cols+2) * rows, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
+        // dynamic scheduling
+//        pf.parallel_for(0, (cols+2) * rows, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
+//
+//            // compute alive neighbours
+//            auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
+//                       + matrix_in[curr_p-1] + matrix_in[curr_p+1]
+//                       + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
+//
+//            // set the current cell state
+//            matrix_out[curr_p] = (sum == 3) || (sum+matrix_in[curr_p] == 3) ? 1 : 0;
+//
+//            // move the pointers
+//            up_p++;
+//            curr_p++;
+//            low_p++;
+//
+//        });
+
+        // static scheduling with maximal partion
+        pf.parallel_for_static(0, (cols+2) * rows, 1, 0, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
 
             // compute alive neighbours
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
