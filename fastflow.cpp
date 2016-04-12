@@ -60,25 +60,7 @@ int main(int argc, char* argv[]) {
 
         // TODO: how vectorize this loop?
         // dynamic scheduling
-//        pf.parallel_for(0, (cols+2) * rows, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
-//
-//            // compute alive neighbours
-//            auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
-//                       + matrix_in[curr_p-1] + matrix_in[curr_p+1]
-//                       + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
-//
-//            // set the current cell state
-//            matrix_out[curr_p] = (sum == 3) || (sum+matrix_in[curr_p] == 3) ? 1 : 0;
-//
-//            // move the pointers
-//            up_p++;
-//            curr_p++;
-//            low_p++;
-//
-//        });
-
-        // static scheduling with maximal partion
-        pf.parallel_for_static(0, (cols+2) * rows, 1, 0, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
+        pf.parallel_for(0, (cols+2) * rows, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
 
             // compute alive neighbours
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
@@ -94,6 +76,26 @@ int main(int argc, char* argv[]) {
             low_p++;
 
         });
+
+
+        // TODO: orrible performace with static scheduling why ? (OMP give best performace with static sched.)
+        // static scheduling with maximal partion
+//        pf.parallel_for_static(0, (cols+2) * rows, 1, 0, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
+//
+//            // compute alive neighbours
+//            auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
+//                       + matrix_in[curr_p-1] + matrix_in[curr_p+1]
+//                       + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
+//
+//            // set the current cell state
+//            matrix_out[curr_p] = (sum == 3) || (sum+matrix_in[curr_p] == 3) ? 1 : 0;
+//
+//            // move the pointers
+//            up_p++;
+//            curr_p++;
+//            low_p++;
+//
+//        });
 
         // set left and right border
         int left, right;
