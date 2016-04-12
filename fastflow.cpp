@@ -3,16 +3,12 @@
 
 #include "board.h"
 
-/*
- * local compile with: g++-5 omp.cpp -std=c++11 -O3 -fopenmp -o omp.exe
- */
-
 // cache efficient version, the board is extended with additional border to allow
 // a linear scan of the memory with tree indices that compute the neighbour sum
 //
 // the two board (implemented as contiguous memory) are read and write in a perfect linear way
 //
-// this version is also vectorized (TODO:how vectorize fastflow parallel_for???)
+// this version is also vectorized (not with fastflow parallel for)
 
 // #define PRINT
 
@@ -58,10 +54,8 @@ int main(int argc, char* argv[]) {
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
 
-        // TODO: how vectorize this loop?
-        // dynamic scheduling
+        // parallel for with dynamic scheduling (this loop is impossible to vectorize)
         pf.parallel_for(0, (cols+2) * rows, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
-            #pragma ivdep
             // compute alive neighbours
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
                        + matrix_in[curr_p-1] + matrix_in[curr_p+1]
@@ -77,9 +71,8 @@ int main(int argc, char* argv[]) {
 
         });
 
-
-        // TODO: orrible performace with static scheduling why ? (OMP give best performace with static sched.)
-        // static scheduling with maximal partion
+        // static scheduling with maximal partitions produce orrible performace
+        // OMP instead give best performance with static scheduling
 //        pf.parallel_for_static(0, (cols+2) * rows, 1, 0, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
 //
 //            // compute alive neighbours
@@ -100,7 +93,6 @@ int main(int argc, char* argv[]) {
         // set left and right border
         int left, right;
         // no vectorization here (noncontiguous memory access make it inefficient)
-
         for (int i = 1; i < (rows+2) ; i++) {
             left = i*in.m_width;
             right = left+in.m_width-1;
@@ -112,7 +104,6 @@ int main(int argc, char* argv[]) {
         int start = in.m_width; // second row starting index
         int end = (in.m_height-1)*in.m_width; // last row starting index
         // vectorization here report a potential speedup of 1.2
-
         #pragma ivdep
         for (int j = 0; j < start; ++j) {
             // copy last real row in upper border (first row)
