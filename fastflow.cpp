@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
         // TODO: how vectorize this loop?
         // dynamic scheduling
         pf.parallel_for(0, (cols+2) * rows, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
-
+            #pragma ivdep
             // compute alive neighbours
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
                        + matrix_in[curr_p-1] + matrix_in[curr_p+1]
