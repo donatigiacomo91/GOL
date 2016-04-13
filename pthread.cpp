@@ -5,10 +5,6 @@
 
 #include "board.h"
 
-/*
- * local compile with: g++-5 pthread.cpp -std=c++11 -O3 -pthread -o pthread.exe
- */
-
 // #define PRINT
 
 struct thread_data{
@@ -107,17 +103,15 @@ void* body(void* arg) {
         // synchronization point
         int res = pthread_barrier_wait(&barrier);
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
-            // nothing to do
+            // one of the forked thread pass here when all threads exit from barrier so this is not a real serial part
+            // but until all threads have reached again the barrier this portion of code is not execuded again
+            // so we can insert testing here if we read safe data structures (data that are not writed in the next iteration)
             #ifdef PRINT
             (*p_in).print();
             std::cout << std::endl;
             #endif
         } else if(res != 0) {
             std::cout << "Barrier error n." << res << std::endl;
-        } else {
-            #ifdef PRINT
-            usleep(50000);
-            #endif
         }
 
     }

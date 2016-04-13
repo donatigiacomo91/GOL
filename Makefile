@@ -20,7 +20,7 @@ fastflow:
 	icc fastflow.cpp -std=c++11 -O3 -pthread -DNO_DEFAULT_MAPPING -I /home/spm1501/fastflow -o ff.exe
 
 m_fastflow:
-	icc fastflow.cpp -std=c++11 -O3 -pthread -mmic -DNO_DEFAULT_MAPPING -I /home/spm1501/fastflow -o ff.exe
+	icc fastflow.cpp -std=c++11 -O3 -pthread -mmic -DNO_DEFAULT_MAPPING -I /home/spm1501/fastflow -o m_ff.exe
 
 compile_all:
 	make sequential
@@ -31,6 +31,12 @@ compile_all:
 	make m_omp
 	make fastflow
 	make m_fastflow
+
+move_to_mic:
+	scp m_seq.exe mic0:
+	scp m_pthread.exe mic0:
+	scp m_omp.exe mic0:
+	scp m_ff.exe mic0:
 
 clean:
 	rm *.exe
