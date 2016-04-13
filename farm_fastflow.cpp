@@ -185,12 +185,12 @@ int main(int argc, char *argv[]) {
     auto th_num = atoi(argv[4]);
 
     // data structures
-    board in(rows, cols);
-    board out(rows, cols);
-    in.set_random();
+    board* in = new board(rows, cols);
+    board* out = new board(rows, cols);
+    in->set_random();
 
     #ifdef PRINT
-    in.print();
+    in->print();
     #endif
 
     // time start
@@ -203,7 +203,7 @@ int main(int argc, char *argv[]) {
 
     ff_Farm<task> farm(std::move(workers));
 
-    Emitter emitter(iter_num, th_num, farm.getlb(), &in, &out);
+    Emitter emitter(iter_num, th_num, farm.getlb(), in, out);
     // add specific emitter
     farm.add_emitter(emitter);
     // adds feedback channels between each worker and the emitter
@@ -218,6 +218,9 @@ int main(int argc, char *argv[]) {
     std::cout << std::endl;
     std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
     std::cout << std::endl;
+
+    delete in;
+    delete out;
 
     return 0;
 }
