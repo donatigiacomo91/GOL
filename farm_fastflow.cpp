@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <unistd.h>
 
 #include <ff/pipeline.hpp>
 #include <ff/farm.hpp>
@@ -17,6 +18,7 @@ struct Worker: ff_node_t<task> {
 
     task* svc(task* t) {
 
+        usleep(get_my_id()*1000 + (rand()%5)*100 );
         std::cout << " get." << t->start << "," << t->stop;
 
         return t;
