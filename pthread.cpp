@@ -103,15 +103,17 @@ void* body(void* arg) {
         // synchronization point
         int res = pthread_barrier_wait(&barrier);
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
-            // one of the forked thread pass here when all threads exit from barrier so this is not a real serial part
-            // but until all threads have reached again the barrier this portion of code is not execuded again
-            // so we can insert testing here if we read safe data structures (data that are not writed in the next iteration)
+            // one of the forked threads pass here when threads exit from barrier, so this is not a real serial part
+            // but until all threads have reached again the barrier this portion of code is not executed again
+            // (including the "serial" thread)
+            // so we can insert test here if we read safe data structures (data that are not write in the next iteration)
             #ifdef PRINT
             (*p_in).print();
             std::cout << std::endl;
             #endif
         } else if(res != 0) {
             std::cout << "Barrier error n." << res << std::endl;
+            pthread_exit(NULL);
         }
 
     }
