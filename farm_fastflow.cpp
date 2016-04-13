@@ -8,10 +8,6 @@
 
 using namespace ff;
 
-// game boards
-board * in;
-board * out;
-
 struct task {
     int start;
     int stop;
@@ -37,22 +33,26 @@ struct Emitter: ff_node_t<task> {
     int worker_count;
 
     ff_loadbalancer *lb;
+    board* p_in;
+    board* p_out;
 
     task* task_arr;
 
-    Emitter(int iteration, int worker, ff_loadbalancer *const farm_lb) {
+    Emitter(int iteration, int worker, ff_loadbalancer *const farm_lb, board* in, board* out) {
 
         iteration_num = iteration;
         iteration_count = 0;
         worker_num = worker;
         worker_count = 0;
         lb = farm_lb;
+        p_in = in;
+        p_out = out;
 
         // build workers partions
         task_arr = (task*) malloc(sizeof(task)*worker);
 
-        auto th_rows = in->m_width-2 / worker;
-        auto remains = in->m_width-2 % worker;
+        auto th_rows = in->m_height-2 / worker;
+        auto remains = in->m_height-2 % worker;
         int start, stop = 0;
 
         for(auto i=0; i<worker; i++) {
@@ -111,9 +111,9 @@ int main(int argc, char *argv[]) {
     auto th_num = atoi(argv[4]);
 
     // data structures
-    in = new board(rows, cols);
-    out = new board(rows, cols);
-    in->set_random();
+    board in(rows, cols);
+    board out(rows, cols);
+    in.set_random();
 
     #ifdef PRINT
     in->print();
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]) {
 
     ff_Farm<task> farm(std::move(workers));
 
-    Emitter emitter(iter_num, th_num, farm.getlb());
+    Emitter emitter(iter_num, th_num, farm.getlb(), &in, &out);
     // add specific emitter
     farm.add_emitter(emitter);
     // adds feedback channels between each worker and the emitter
@@ -144,10 +144,6 @@ int main(int argc, char *argv[]) {
     std::cout << std::endl;
     std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
     std::cout << std::endl;
-
-    // data structures clean
-    delete in;
-    delete out;
 
     return 0;
 }
