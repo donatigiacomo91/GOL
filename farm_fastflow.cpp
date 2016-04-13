@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <malloc>
 
 #include <ff/pipeline.hpp>
 #include <ff/farm.hpp>
@@ -85,7 +84,7 @@ struct Emitter: ff_node_t<task> {
             iteration_count++;
             worker_count = 0;
 
-            if (iteration_count == iteration) {
+            if (iteration_count == iteration_num) {
                 std::cout << "game completed\n";
                 lb->broadcast_task(EOS);
                 free(task_arr);
