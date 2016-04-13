@@ -21,7 +21,6 @@ struct task {
 struct Worker: ff_node_t<task> {
 
     task* svc(task* t) {
-
         board * p_in = t->_p_in;
         board * p_out = t->_p_out;
         int start = t->start;
@@ -40,10 +39,10 @@ struct Worker: ff_node_t<task> {
         auto up_p = start*cols + 1;
         auto curr_p = up_p + cols;
         auto low_p = curr_p + cols;
-
+	std::cout << assigned_row_num << std::endl;
         #pragma ivdep
         for (int i = 1; i < assigned_row_num*cols; ++i) {
-
+		std::cout << "iter\n";
             // compute alive neighbours
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
                        + matrix_in[curr_p-1] + matrix_in[curr_p+1]
@@ -57,7 +56,7 @@ struct Worker: ff_node_t<task> {
             curr_p++;
             low_p++;
         }
-
+	std::cout << "main";
         // set left and right border
         int left = start*cols + cols;
         int right = left+cols - 1;
@@ -190,7 +189,7 @@ int main(int argc, char *argv[]) {
     in.set_random();
 
     #ifdef PRINT
-    in->print();
+    in.print();
     #endif
 
     // time start
