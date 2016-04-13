@@ -1,57 +1,98 @@
 #include <iostream>
 #include <vector>
+#include <malloc>
+
 #include <ff/pipeline.hpp>
 #include <ff/farm.hpp>
 
+#include "board.h"
+
 using namespace ff;
 
-struct Worker: ff_node_t<long> {
-    long *svc(long *t) {
-        std::cout << *t << std::endl;
-        return t;
-    } // it does nothing, just sends back tasks
+// game boards
+board * in;
+board * out;
+
+struct task {
+    int start;
+    int stop;
 };
 
-struct Emitter: ff_node_t<long> {
-    int iteration;
+struct Worker: ff_node_t<task> {
+
+    task* svc(task* t) {
+
+        std::cout << " get." << t->start << "," << t->stop;
+
+        return t;
+    }
+
+};
+
+struct Emitter: ff_node_t<task> {
+
+    int iteration_num;
     int iteration_count;
+
     int worker_num;
     int worker_count;
 
     ff_loadbalancer *lb;
 
-    Emitter(int iter, int worker, ff_loadbalancer *const farm_lb) {
-        iteration = iter;
+    task* task_arr;
+
+    Emitter(int iteration, int worker, ff_loadbalancer *const farm_lb) {
+
+        iteration_num = iteration;
         iteration_count = 0;
         worker_num = worker;
         worker_count = 0;
         lb = farm_lb;
+
+        // build workers partions
+        task_arr = (task*) malloc(sizeof(task)*worker);
+
+        auto th_rows = in->m_width-2 / worker;
+        auto remains = in->m_width-2 % worker;
+        int start, stop = 0;
+
+        for(auto i=0; i<worker; i++) {
+            start = stop;
+            stop = (remains > 0) ? start + th_rows : start + th_rows -1;
+            task_arr[i]  = {start, stop};
+            remains--;
+            stop++;
+        }
     }
 
     int svc_init() {
         std::cout << "Emitter init\n";
-        for(int i=0; i < worker_num; ++i)
-            ff_send_out(new long(i));
-	std::cout << "Emitter init end\n";
+
+        for(int i=0; i < worker_num; ++i) {
+            ff_send_out(&task_arr[i]);
+        }
+
+	    std::cout << "Emitter init end\n";
         return 0;
     }
 
-    long *svc(long *t) {
+    task *svc(task *t) {
 
-        delete t;
         worker_count++;
 
         if (worker_count == worker_num) {
             std::cout << "iteration completed\n";
             iteration_count++;
             worker_count = 0;
+
             if (iteration_count == iteration) {
                 std::cout << "game completed\n";
                 lb->broadcast_task(EOS);
+                free(task_arr);
                 return EOS;
             } else {
                 for(int i=0; i < worker_num; ++i)
-                    ff_send_out(new long(i));
+                    ff_send_out(&task_arr[i]); // round robin strategy
                     //lb->ff_send_out_to(new long(i),i);
             }
         }
@@ -62,24 +103,52 @@ struct Emitter: ff_node_t<long> {
 
 int main(int argc, char *argv[]) {
 
-    assert(argc>1);
+    // board size
+    auto rows = atoi(argv[1]);
+    auto cols = atoi(argv[2]);
+    // iteration number
+    auto iter_num = atoi(argv[3]);
+    // parallelism degree
+    auto th_num = atoi(argv[4]);
 
-    int game_iteration = atoi(argv[1]);
-    int nworkers = atoi(argv[2]);
+    // data structures
+    in = new board(rows, cols);
+    out = new board(rows, cols);
+    in->set_random();
 
+    #ifdef PRINT
+    in->print();
+    #endif
+
+    // time start
+    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+
+    // fastflow setup
     std::vector<std::unique_ptr<ff_node>> workers;
-    for(int i=0; i<nworkers; ++i)
+    for(int i=0; i<th_num; ++i)
         workers.push_back(make_unique<Worker>());
 
-    ff_Farm<long> farm(std::move(workers));
+    ff_Farm<task> farm(std::move(workers));
 
-    Emitter emitter(game_iteration, nworkers, farm.getlb());
+    Emitter emitter(iter_num, th_num, farm.getlb());
     // add specific emitter
     farm.add_emitter(emitter);
     // adds feedback channels between each worker and the emitter
     farm.wrap_around();
 
     if (farm.run_and_wait_end()<0) error("running farm");
+
+    // time end
+    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+    std::cout << std::endl;
+    std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
+    std::cout << std::endl;
+
+    // data structures clean
+    delete in;
+    delete out;
 
     return 0;
 }
