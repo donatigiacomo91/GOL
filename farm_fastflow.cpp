@@ -20,17 +20,19 @@ struct Emitter: ff_node_t<long> {
 
     ff_loadbalancer *lb;
 
-    Emitter(int iter, int worker, ff_loadbalancer *const lb) {
+    Emitter(int iter, int worker, ff_loadbalancer *const farm_lb) {
         iteration = iter;
         iteration_count = 0;
         worker_num = worker;
         worker_count = 0;
+        lb = farm_lb;
     }
 
     int svc_init() {
         std::cout << "Emitter init\n";
         for(int i=0; i < worker_num; ++i)
             ff_send_out(new long(i));
+	std::cout << "Emitter init end\n";
         return 0;
     }
 
@@ -40,10 +42,13 @@ struct Emitter: ff_node_t<long> {
         worker_count++;
 
         if (worker_count == worker_num) {
+            std::cout << "iteration completed\n";
             iteration_count++;
             worker_count = 0;
             if (iteration_count == iteration) {
+                std::cout << "game completed\n";
                 lb->broadcast_task(EOS);
+                return EOS;
             } else {
                 for(int i=0; i < worker_num; ++i)
                     ff_send_out(new long(i));
