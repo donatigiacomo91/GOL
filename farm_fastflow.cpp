@@ -9,17 +9,81 @@
 
 using namespace ff;
 
+#define PRINT
+
 struct task {
     int start;
     int stop;
+    board* _p_in;
+    board* _p_out;
 };
 
 struct Worker: ff_node_t<task> {
 
     task* svc(task* t) {
 
-        usleep(get_my_id()*1000 + (rand()%5)*10000 );
-        std::cout << " get." << t->start << "," << t->stop <<std::endl;
+        board * p_in = t->_p_in;
+        board * p_out = t->_p_out;
+        int start = t->start;
+        int stop = t->stop;
+
+        // columns number
+        const auto cols = p_in->m_width;
+        const auto rows = p_in->m_height;
+
+        int* matrix_in = p_in->matrix;
+        int* matrix_out = p_out->matrix;
+
+        const auto assigned_row_num = (stop-start+1);
+
+        // current, upper and lower indices
+        auto up_p = start*cols + 1;
+        auto curr_p = up_p + cols;
+        auto low_p = curr_p + cols;
+
+        #pragma ivdep
+        for (int i = 1; i < assigned_row_num*cols; ++i) {
+
+            // compute alive neighbours
+            auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
+                       + matrix_in[curr_p-1] + matrix_in[curr_p+1]
+                       + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
+
+            // set the current cell state
+            matrix_out[curr_p] = (sum == 3) || (sum+matrix_in[curr_p] == 3) ? 1 : 0;
+
+            // move the pointers
+            up_p++;
+            curr_p++;
+            low_p++;
+        }
+
+        // set left and right border
+        int left = start*cols + cols;
+        int right = left+cols - 1;
+        // no vectorization here (noncontiguous memory access make it inefficient)
+        for (int i = 0; i < assigned_row_num; i++) {
+            matrix_out[left] = matrix_out[right-1];
+            matrix_out[right] = matrix_out[left+1];
+            left += cols;
+            right += cols;
+        }
+
+        // thread that compute the first row have to copy it as bottom border
+        if (start == 0) {
+            const auto sr_index = cols;
+            const auto bb_index = (rows-1)*cols;
+            for (int i = 0; i < cols; ++i) {
+                matrix_out[bb_index+i] = matrix_out[sr_index+i];
+            }
+        }
+        // thread that compute the last row have to copy it as upper border
+        if (stop == rows-3) {
+            const auto slr_index = (rows-2)*cols;
+            for (int ub_index = 0; ub_index < cols; ++ub_index) {
+                matrix_out[ub_index] = matrix_out[slr_index+ub_index];
+            }
+        }
 
         return t;
     }
@@ -59,7 +123,7 @@ struct Emitter: ff_node_t<task> {
         for(auto i=0; i<worker; i++) {
             start = stop;
             stop = (remains > 0) ? start + th_rows : start + th_rows -1;
-            task_arr[i]  = {start, stop};
+            task_arr[i]  = {start, stop, in, out};
             remains--;
             stop++;
         }
@@ -81,9 +145,13 @@ struct Emitter: ff_node_t<task> {
         worker_count++;
 
         if (worker_count == worker_num) {
-            std::cout << "iteration completed\n";
+
             iteration_count++;
             worker_count = 0;
+            #ifdef PRINT
+            t->_p_out->print();
+            std::cout << std::endl;
+            #endif
 
             if (iteration_count == iteration_num) {
                 std::cout << "game completed\n";
@@ -91,9 +159,14 @@ struct Emitter: ff_node_t<task> {
                 free(task_arr);
                 return EOS;
             } else {
-                for(int i=0; i < worker_num; ++i)
+                for(int i=0; i < worker_num; ++i) {
+                    // switch pointer
+                    board* tmp = task_arr[i]._p_out;
+                    task_arr[i]._p_out = task_arr[i]._p_in;
+                    task_arr[i]._p_in = tmp;
                     ff_send_out(&task_arr[i]); // round robin strategy
-                    //lb->ff_send_out_to(new long(i),i);
+                    // lb->ff_send_out_to(new long(i),i); // static scheduling strategy
+                }
             }
         }
 
