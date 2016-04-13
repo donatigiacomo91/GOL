@@ -18,8 +18,8 @@ struct Worker: ff_node_t<task> {
 
     task* svc(task* t) {
 
-        usleep(get_my_id()*1000 + (rand()%5)*100 );
-        std::cout << " get." << t->start << "," << t->stop;
+        usleep(get_my_id()*1000 + (rand()%5)*10000 );
+        std::cout << " get." << t->start << "," << t->stop <<std::endl;
 
         return t;
     }
@@ -53,10 +53,9 @@ struct Emitter: ff_node_t<task> {
         // build workers partions
         task_arr = (task*) malloc(sizeof(task)*worker);
 
-        auto th_rows = in->m_height-2 / worker;
-        auto remains = in->m_height-2 % worker;
+        auto th_rows = (in->m_height-2) / worker;
+        auto remains = (in->m_height-2) % worker;
         int start, stop = 0;
-
         for(auto i=0; i<worker; i++) {
             start = stop;
             stop = (remains > 0) ? start + th_rows : start + th_rows -1;
