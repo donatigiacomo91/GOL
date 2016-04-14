@@ -39,8 +39,12 @@ void* body(void* arg) {
 
     const auto assigned_row_num = (stop-start+1);
 
+    auto medium_iter_time;
+
     // game iteration
     for (int k = 0; k < iter_num; ++k) {
+
+        std::chrono::high_resolution_clock::time_point iter_start = std::chrono::high_resolution_clock::now();
 
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
@@ -100,6 +104,9 @@ void* body(void* arg) {
         p_in = p_out;
         p_out = tmp;
 
+        std::chrono::high_resolution_clock::time_point iter_end = std::chrono::high_resolution_clock::now();
+        medium_iter_time = (medium_iter_time + std::chrono::duration_cast<std::chrono::milliseconds>(iter_end - iter_start).count())/2;
+
         // synchronization point
         int res = pthread_barrier_wait(&barrier);
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
@@ -117,6 +124,8 @@ void* body(void* arg) {
         }
 
     }
+
+    std::cout << "medium iteration time is: " << medium_iter_time << " milliseconds" << std::endl;
 
     pthread_exit(NULL);
 }
@@ -178,6 +187,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
+    auto setup_time = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1).count();
+
     // await termination
     void *status;
     for(auto i=0; i<th_num; i++) {
@@ -196,6 +208,7 @@ int main(int argc, char* argv[]) {
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
     std::cout << std::endl;
+    std::cout << "setup time is: " << duration << " milliseconds" << std::endl;
     std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
     std::cout << std::endl;
 
