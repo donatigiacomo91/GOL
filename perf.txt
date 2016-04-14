@@ -1,0 +1,58 @@
+PERF TEST - 14/04 - GOL :
+
+- PHI:
+
+	Data: 2000x2000 matrix for 500 iteration
+
+		- sequential time = 3s
+
+		- pthread 1 thread time = 3.2s
+		- pthread 2 thread time = 2.8s
+		- pthread 4 thread time = 1.3s
+		- pthread 8 thread time = 0.7s
+		* sp(1) = 0.9 * sp(2) = 1 * sp(4) = 2.3 * sp(8) = 4.2
+		* eff(1) = 0.9 * eff(2) = 0.5 * eff(4) = 0.57 * eff(8) = 0.52
+
+		- omp 1 thread time = 3.2s
+		- omp 2 thread time = 1.9s
+		- omp 4 thread time = 1.3s
+		- omp 8 thread time = 1s
+		* sp(1) = 0.9 * sp(2) = 1.5 * sp(4) = 2.3 * sp(8) = 3
+		* eff(1) = 0.9 * eff(2) = 1.3 * eff(4) = 0.57 * eff(8) = 0.37
+
+		- fastflow 1 thread time = 13.5s
+		- fastflow 2 thread time = 9.5s
+		- fastflow 4 thread time = 6.5s
+		- fastflow 8 thread time = 5.5s
+
+- MIC:
+
+	Data: 2000x2000 matrix for 500 iteration
+
+		- sequential time = 12s
+
+		- pthread 1 thread time = 11.8s
+		- pthread 2 thread time = 5.9s
+		- pthread 4 thread time = 3s
+		- pthread 8 thread time = 1.6s
+		- pthread 16 thread time = 1.1s
+		* sp(1) = 1 * sp(2) = 2 * sp(4) = 4 * sp(8) = 7.5 * sp(16) = 10.9
+		* eff(1) = 1 * eff(2) = 1 * eff(4) = 1 * eff(8) = 0.93 * eff(16) = 0.68
+
+		- omp 1 thread time = 
+		- omp 2 thread time = 
+		- omp 4 thread time = 
+		- omp 8 thread time = 
+		* sp(1) =  * sp(2) =  * sp(4) =  * sp(8) = 
+		* eff(1) =  * eff(2) =  * eff(4) =  * eff(8) = 
+
+		- fastflow 1 thread time = imppossible to run
+		- fastflow 2 thread time = imppossible to run
+		- fastflow 4 thread time = imppossible to run
+		- fastflow 8 thread time = imppossible to run
+		- fastflow 16 thread time = imppossible to run
+		- fastflow 32 thread time = 25s
+		- fastflow 64 thread time = 22s
+		- fastflow 128 thread time = 15s
+
+
