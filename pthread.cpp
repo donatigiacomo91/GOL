@@ -125,7 +125,7 @@ void* body(void* arg) {
 
     }
 
-    std::cout << medium_iter_time;
+    std::cout << medium_iter_time << ",";
 
     pthread_exit(NULL);
 }
@@ -179,9 +179,6 @@ int main(int argc, char* argv[]) {
         stop++;
     }
 
-    std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
-    auto setup_time = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1).count();
-
     pthread_t* tid = (pthread_t*) malloc(sizeof(pthread_t)*th_num);
     for(auto i=0; i<th_num; i++) {
         auto rc = pthread_create(&tid[i], NULL, body, (void *)&t_data[i]);
@@ -189,6 +186,9 @@ int main(int argc, char* argv[]) {
             std::cout << "ERROR; return code from pthread_create() is " << rc << std::endl;
         }
     }
+
+    std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
+    auto setup_time = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1).count();
 
     // await termination
     void *status;
@@ -208,7 +208,7 @@ int main(int argc, char* argv[]) {
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
     std::cout << std::endl;
-    std::cout << "setup time is: " << duration << " milliseconds" << std::endl;
+    std::cout << "setup time is: " << setup_time << " milliseconds" << std::endl;
     std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
     std::cout << std::endl;
 
