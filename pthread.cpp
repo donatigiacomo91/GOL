@@ -25,12 +25,8 @@ int iter_num;
 
 // medium iteration time
 long long * m_time_arr;
-// total execution time
-long long * t_time_arr;
 
 void* body(void* arg) {
-
-    std::chrono::high_resolution_clock::time_point start_t = std::chrono::high_resolution_clock::now();
 
     thread_data* data = (thread_data*) arg;
     board * p_in = in;
@@ -47,7 +43,7 @@ void* body(void* arg) {
 
     const auto assigned_row_num = (stop-start+1);
 
-    long medium_iter_time;
+    long long total_iter_time = 0;
 
     // game iteration
     for (int k = 0; k < iter_num; ++k) {
@@ -113,7 +109,7 @@ void* body(void* arg) {
         p_out = tmp;
 
         std::chrono::high_resolution_clock::time_point iter_end_t = std::chrono::high_resolution_clock::now();
-        medium_iter_time += std::chrono::duration_cast<std::chrono::microseconds>(iter_end_t - iter_start_t).count();
+        total_iter_time += std::chrono::duration_cast<std::chrono::microseconds>(iter_end_t - iter_start_t).count();
 
         // synchronization point
         int res = pthread_barrier_wait(&barrier);
@@ -133,11 +129,7 @@ void* body(void* arg) {
 
     }
 
-    std::chrono::high_resolution_clock::time_point end_t = std::chrono::high_resolution_clock::now();
-    long long th_total_time = std::chrono::duration_cast<std::chrono::milliseconds>(start_t - end_t).count();
-
-    t_time_arr[data->_id] = th_total_time;
-    m_time_arr[data->_id] = medium_iter_time/iter_num;
+    m_time_arr[data->_id] = total_iter_time/iter_num;
 
     pthread_exit(NULL);
 }
@@ -221,8 +213,7 @@ int main(int argc, char* argv[]) {
 
     std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
     for (int j = 0; j < th_num; ++j) {
-        std::cout << "th n." << j << " medium iter time:" << m_time_arr[j] << std::endl;
-        std::cout << "th n." << j << " total time:" << t_time_arr[j] << std::endl;
+        std::cout << "th n." << j << " medium iter time:" << m_time_arr[j] << "microsecond" << std::endl;
     }
     std::cout << std::endl;
 
