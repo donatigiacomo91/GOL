@@ -24,13 +24,13 @@ board * out;
 int iter_num;
 
 // medium iteration time
-long * m_time_arr;
+long long * m_time_arr;
 // total execution time
-long * t_time_arr;
+long long * t_time_arr;
 
 void* body(void* arg) {
 
-    std::chrono::high_resolution_clock::time_point th_start = std::chrono::high_resolution_clock::now();
+    std::chrono::high_resolution_clock::time_point start_t = std::chrono::high_resolution_clock::now();
 
     thread_data* data = (thread_data*) arg;
     board * p_in = in;
@@ -52,7 +52,7 @@ void* body(void* arg) {
     // game iteration
     for (int k = 0; k < iter_num; ++k) {
 
-        std::chrono::high_resolution_clock::time_point iter_start = std::chrono::high_resolution_clock::now();
+        std::chrono::high_resolution_clock::time_point iter_start_t = std::chrono::high_resolution_clock::now();
 
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
@@ -112,8 +112,8 @@ void* body(void* arg) {
         p_in = p_out;
         p_out = tmp;
 
-        std::chrono::high_resolution_clock::time_point iter_end = std::chrono::high_resolution_clock::now();
-        medium_iter_time = (medium_iter_time + std::chrono::duration_cast<std::chrono::milliseconds>(iter_end - iter_start).count())/2;
+        std::chrono::high_resolution_clock::time_point iter_end_t = std::chrono::high_resolution_clock::now();
+        medium_iter_time += std::chrono::duration_cast<std::chrono::microseconds>(iter_end_t - iter_start_t).count();
 
         // synchronization point
         int res = pthread_barrier_wait(&barrier);
@@ -133,11 +133,11 @@ void* body(void* arg) {
 
     }
 
-    std::chrono::high_resolution_clock::time_point th_end = std::chrono::high_resolution_clock::now();
-    auto th_total_time = std::chrono::duration_cast<std::chrono::milliseconds>(th_start - th_end).count();
+    std::chrono::high_resolution_clock::time_point end_t = std::chrono::high_resolution_clock::now();
+    long long th_total_time = std::chrono::duration_cast<std::chrono::milliseconds>(start_t - end_t).count();
 
     t_time_arr[data->_id] = th_total_time;
-    m_time_arr[data->_id] = medium_iter_time;
+    m_time_arr[data->_id] = medium_iter_time/iter_num;
 
     pthread_exit(NULL);
 }
@@ -163,8 +163,8 @@ int main(int argc, char* argv[]) {
     in->print();
     #endif
 
-    m_time_arr = (long*) malloc(sizeof(long)*th_num);
-    t_time_arr = (long*) malloc(sizeof(long)*th_num);
+    m_time_arr = (long long*) malloc(sizeof(long long)*th_num);
+    t_time_arr = (long long*) malloc(sizeof(long long)*th_num);
 
     // time start
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -202,9 +202,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
-    auto setup_time = std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t1).count();
-
     // await termination
     void *status;
     for(auto i=0; i<th_num; i++) {
@@ -222,8 +219,6 @@ int main(int argc, char* argv[]) {
     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
-    std::cout << std::endl;
-    std::cout << "setup time is: " << setup_time << " milliseconds" << std::endl;
     std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
     for (int j = 0; j < th_num; ++j) {
         std::cout << "th n." << j << " medium iter time:" << m_time_arr[j] << std::endl;
