@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 
     in.set_random();
 
-    ff::ParallelFor pf(th_num, false);
+    ff::ParallelFor pf;
 
     #ifdef PRINT
     in.print();
@@ -54,28 +54,8 @@ int main(int argc, char* argv[]) {
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
 
-        // parallel for with dynamic scheduling (this loop is impossible to vectorize)
-//        pf.parallel_for(0, (cols+2) * rows, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
-//            // compute alive neighbours
-//            auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
-//                       + matrix_in[curr_p-1] + matrix_in[curr_p+1]
-//                       + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
-//
-//            // set the current cell state
-//            matrix_out[curr_p] = (sum == 3) || (sum+matrix_in[curr_p] == 3) ? 1 : 0;
-//
-//            // move the pointers
-//            up_p++;
-//            curr_p++;
-//            low_p++;
-//
-//        });
-
-        // static scheduling with maximal partitions produce orrible performace
-        // OMP instead give best performance with static scheduling
-        auto th_rows = rows / th_num;
-        pf.parallel_for_static(0, (cols+2) * rows, 1, -th_rows, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
-
+        // apparently vectorization here is not convenient
+        pf.parallel_for(0, (cols+2) * rows, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
             // compute alive neighbours
             auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
                        + matrix_in[curr_p-1] + matrix_in[curr_p+1]
@@ -89,7 +69,7 @@ int main(int argc, char* argv[]) {
             curr_p++;
             low_p++;
 
-        });
+        }, th_num);
 
         // set left and right border
         int left, right;
