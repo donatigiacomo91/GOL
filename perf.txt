@@ -48,9 +48,9 @@ PERF TEST - 14/04 - GOL :
 
 		- fastflow 1 thread time = imppossible to run
 		- fastflow 2 thread time = imppossible to run
-		- fastflow 4 thread time = imppossible to run
-		- fastflow 8 thread time = imppossible to run
-		- fastflow 16 thread time = imppossible to run
+		- fastflow 4 thread time = 25s
+		- fastflow 8 thread time = 28s
+		- fastflow 16 thread time = 27s
 		- fastflow 32 thread time = 25s
 		- fastflow 64 thread time = 22s
 		- fastflow 128 thread time = 15s

@@ -10,6 +10,7 @@
 struct thread_data{
     int _start;
     int _stop;
+    int _id;
 };
 
 // synchronization lock (some kind of barrier)
@@ -22,7 +23,14 @@ board * out;
 
 int iter_num;
 
+// medium iteration time
+long * m_time_arr;
+// total execution time
+long * t_time_arr;
+
 void* body(void* arg) {
+
+    std::chrono::high_resolution_clock::time_point th_start = std::chrono::high_resolution_clock::now();
 
     thread_data* data = (thread_data*) arg;
     board * p_in = in;
@@ -125,7 +133,11 @@ void* body(void* arg) {
 
     }
 
-    std::cout << medium_iter_time << ",";
+    std::chrono::high_resolution_clock::time_point th_end = std::chrono::high_resolution_clock::now();
+    auto th_total_time = std::chrono::duration_cast<std::chrono::milliseconds>(th_start - th_end).count();
+
+    t_time_arr[data->_id] = th_total_time;
+    m_time_arr[data->_id] = medium_iter_time;
 
     pthread_exit(NULL);
 }
@@ -151,6 +163,9 @@ int main(int argc, char* argv[]) {
     in->print();
     #endif
 
+    m_time_arr = (long*) malloc(sizeof(long)*th_num);
+    t_time_arr = (long*) malloc(sizeof(long)*th_num);
+
     // time start
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
@@ -171,7 +186,7 @@ int main(int argc, char* argv[]) {
     for(auto i=0; i<th_num; i++) {
         start = stop;
         stop = (remains > 0) ? start + th_rows : start + th_rows -1;
-        t_data[i]  = {start, stop};
+        t_data[i]  = {start, stop, i};
         #ifdef PRINT
         std::cout << "Thread n." << i << " get rows from " << start << " to " << stop << std::endl;
         #endif
@@ -210,6 +225,10 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl;
     std::cout << "setup time is: " << setup_time << " milliseconds" << std::endl;
     std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
+    for (int j = 0; j < th_num; ++j) {
+        std::cout << "th n." << j << " medium iter time:" << m_time_arr[j] << std::endl;
+        std::cout << "th n." << j << " total time:" << t_time_arr[j] << std::endl;
+    }
     std::cout << std::endl;
 
     // data structures clean
