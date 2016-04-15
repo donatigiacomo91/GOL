@@ -46,6 +46,8 @@ int main(int argc, char* argv[]) {
     // time start
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
+    // #pragma omp parallel num_threads(th_num)
+    // {
     // game iteration
     for (int k = 0; k < it_num; ++k) {
 
@@ -63,6 +65,7 @@ int main(int argc, char* argv[]) {
         //          are slightly more than necessary. the border are then overwritten.
         //
         // vectorization here report a potential speedup of 3.5 (compiler report stat)
+        // #pragma omp for schedule(static)
         #pragma omp parallel for num_threads(th_num) schedule(static)
         #pragma ivdep
         for (int i = 0; i < (cols+2) * rows; ++i) {
@@ -115,6 +118,7 @@ int main(int argc, char* argv[]) {
         p_out = tmp;
 
     }
+    //}
 
 
     // time end
