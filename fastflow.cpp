@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 
     in.set_random();
 
-    ff::ParallelFor pf;
+    ff::ParallelFor pf(th_num, true);
 
     #ifdef PRINT
     in.print();
