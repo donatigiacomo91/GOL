@@ -4,7 +4,8 @@
 #include "board.h"
 
 /*
- * local compile with: g++-5 omp.cpp -std=c++11 -O3 -fopenmp -o omp.exe
+ * NOTE: before run this code on the MIC we have to execute the command line: "export LD_LIBRARY_PATH=."
+ *        and we have to ensure the presence of "libiomp5.so" on the MIC.
  */
 
 // cache efficient version, the board is extended with additional border to allow
@@ -56,7 +57,12 @@ int main(int argc, char* argv[]) {
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
 
-        // vectorization here report a potential speedup of 3.5
+        // compute the next matrix state
+        //
+        // note: to allow a perfect linear scan (that implies vectorization) the number of iterations
+        //          are slightly more than necessary. the border are then overwritten.
+        //
+        // vectorization here report a potential speedup of 3.5 (compiler report stat)
         #pragma omp parallel for num_threads(th_num) schedule(static)
         #pragma ivdep
         for (int i = 0; i < (cols+2) * rows; ++i) {
@@ -77,8 +83,8 @@ int main(int argc, char* argv[]) {
 
         // set left and right border
         int left, right;
-        // no vectorization here (noncontiguous memory access make it inefficient)
-        
+        // NO vectorization here (noncontiguous memory access make it inefficient)
+        // vectorization report report a potential slowdown
         for (int i = 1; i < (rows+2) ; i++) {
             left = i*in.m_width;
             right = left+in.m_width-1;
@@ -90,7 +96,6 @@ int main(int argc, char* argv[]) {
         int start = in.m_width; // second row starting index
         int end = (in.m_height-1)*in.m_width; // last row starting index
         // vectorization here report a potential speedup of 1.2
-        
         #pragma ivdep
         for (int j = 0; j < start; ++j) {
             // copy last real row in upper border (first row)
