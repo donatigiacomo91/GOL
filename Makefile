@@ -2,25 +2,25 @@ sequential:
 	icc sequential.cpp -std=c++11 -O3 -o seq.exe
 
 m_sequential:
-	icc sequential.cpp -std=c++11 -O3 -mmic -o m_seq.exe
+	icc sequential.cpp -std=c++11 -O3 -o m_seq.exe -mmic
 
 pthread:
 	icc pthread.cpp -std=c++11 -O3 -pthread -o pthread.exe
 
 m_pthread:
-	icc pthread.cpp -std=c++11 -O3 -pthread -mmic -o m_pthread.exe
+	icc pthread.cpp -std=c++11 -O3 -pthread -o m_pthread.exe -mmic
 
 omp:
 	icc omp.cpp -std=c++11 -O3 -fopenmp -o omp.exe
 
 m_omp:
-	icc omp.cpp -std=c++11 -O3 -fopenmp -mmic -o m_omp.exe
+	icc omp.cpp -std=c++11 -O3 -fopenmp -o m_omp.exe -DNO_DEFAULT_MAPPING -mmic
 
 fastflow:
-	icc fastflow.cpp -std=c++11 -O3 -pthread -DNO_DEFAULT_MAPPING -I /home/spm1501/fastflow -o ff.exe
+	icc fastflow.cpp -std=c++11 -O3 -pthread -I /home/spm1501/fastflow -o ff.exe
 
 m_fastflow:
-	icc fastflow.cpp -std=c++11 -O3 -pthread -mmic -DNO_DEFAULT_MAPPING -I /home/spm1501/fastflow -o m_ff.exe
+	icc fastflow.cpp -std=c++11 -O3 -pthread -I /home/spm1501/fastflow -o m_ff.exe -DNO_DEFAULT_MAPPING -mmic
 
 compile_all:
 	make sequential
