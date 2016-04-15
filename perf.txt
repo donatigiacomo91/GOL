@@ -1,6 +1,6 @@
 PERF TEST - 14/04 - GOL :
 
-- PHI:
+- HOST:
 
 	Data: 2000x2000 matrix for 500 iteration
 
@@ -39,20 +39,22 @@ PERF TEST - 14/04 - GOL :
 		* sp(1) = 1 * sp(2) = 2 * sp(4) = 4 * sp(8) = 7.5 * sp(16) = 10.9
 		* eff(1) = 1 * eff(2) = 1 * eff(4) = 1 * eff(8) = 0.93 * eff(16) = 0.68
 
-		- omp 1 thread time = 
-		- omp 2 thread time = 
-		- omp 4 thread time = 
-		- omp 8 thread time = 
-		* sp(1) =  * sp(2) =  * sp(4) =  * sp(8) = 
-		* eff(1) =  * eff(2) =  * eff(4) =  * eff(8) = 
+		- omp 1 thread time = 23s
+		- omp 2 thread time = 15s
+		- omp 4 thread time = 11s
+		- omp 8 thread time = 8.3s
+		- omp 16 thread time = 4.8s
+		- omp 32 thread time = 4.2s
+		- omp 64 thread time = 5.5s
+		* sp(1) = 0.52 * sp(2) = 0.8 * sp(4) = 1 * sp(8) = 1.44 * sp(16) = 2.5 * sp(32) = 2.85 
 
-		- fastflow 1 thread time = imppossible to run
-		- fastflow 2 thread time = imppossible to run
-		- fastflow 4 thread time = 25s
-		- fastflow 8 thread time = 28s
-		- fastflow 16 thread time = 27s
-		- fastflow 32 thread time = 25s
-		- fastflow 64 thread time = 22s
-		- fastflow 128 thread time = 15s
+		- fastflow 1 thread time = 
+		- fastflow 2 thread time = 
+		- fastflow 4 thread time = 
+		- fastflow 8 thread time = 
+		- fastflow 16 thread time = 
+		- fastflow 32 thread time = 
+		- fastflow 64 thread time = 
+		- fastflow 128 thread time = 
 
 
