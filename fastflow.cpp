@@ -32,6 +32,8 @@ int main(int argc, char* argv[]) {
     int* matrix_in;
     int* matrix_out;
 
+    int width = in.m_width;
+
     in.set_random();
 
     ff::ParallelFor pf(th_num, true);
@@ -46,52 +48,59 @@ int main(int argc, char* argv[]) {
     // game iteration
     for (int k = 0; k < it_num; ++k) {
 
-        // current, upper and lower indices
-        auto up_p = 1;
-        auto curr_p = in.m_width+1;
-        auto low_p = in.m_width*2+1;
-
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
 
         // apparently vectorization here is not convenient
-        pf.parallel_for(0, (cols+2) * rows, [matrix_in,matrix_out,&up_p,&curr_p,&low_p](const long i) {
-            // compute alive neighbours
-            auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
-                       + matrix_in[curr_p-1] + matrix_in[curr_p+1]
-                       + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
+        pf.parallel_for(1, rows+1, [matrix_in,matrix_out](const long i) {
 
-            // set the current cell state
-            matrix_out[curr_p] = (sum == 3) || (sum+matrix_in[curr_p] == 3) ? 1 : 0;
+            // current, upper and lower indices
+            // current, upper and lower indices
+            auto up_p = (i-1)*width + 1;
+            auto curr_p = up_p + width;
+            auto low_p = curr_p + width;
 
-            // move the pointers
-            up_p++;
-            curr_p++;
-            low_p++;
+            #pragma ivdep
+            for (int j = 0; j < cols; ++j) {
+                // compute alive neighbours
+                auto sum = matrix_in[up_p-1] + matrix_in[up_p] + matrix_in[up_p+1]
+                           + matrix_in[curr_p-1] + matrix_in[curr_p+1]
+                           + matrix_in[low_p-1] + matrix_in[low_p] + matrix_in[low_p+1];
 
-        }, th_num);
+                // set the current cell state
+                matrix_out[curr_p] = (sum == 3) || (sum+matrix_in[curr_p] == 3) ? 1 : 0;
 
-        // set left and right border
-        int left, right;
-        // no vectorization here (noncontiguous memory access make it inefficient)
-        for (int i = 1; i < (rows+2) ; i++) {
-            left = i*in.m_width;
-            right = left+in.m_width-1;
+                // move the pointers
+                up_p++;
+                curr_p++;
+                low_p++;
+            }
+
+            // set left and right border
+            int left = i*width;
+            int right = left+width-1;
             matrix_out[left] = matrix_out[right-1];
             matrix_out[right] = matrix_out[left+1];
-        }
 
-        // set top and bottom border
-        int start = in.m_width; // second row starting index
-        int end = (in.m_height-1)*in.m_width; // last row starting index
-        // vectorization here report a potential speedup of 1.2
-        #pragma ivdep
-        for (int j = 0; j < start; ++j) {
-            // copy last real row in upper border (first row)
-            matrix_out[j] = matrix_out[end-in.m_width+j];
-            // copy first real row in bottom border (last row)
-            matrix_out[end+j] = matrix_out[start+j];
-        }
+            // first row must be copied as bottom border
+            if (i == 1) {
+                const auto fr_index = width;
+                const auto bb_index = (rows+1)*width;
+                #pragma ivdep
+                for (int z = 0; z < width; ++z) {
+                    matrix_out[bb_index+z] = matrix_out[fr_index+z];
+                }
+            }
+            // last row must be copied as bottom border
+            if (i == rows) {
+                const auto lr_index = (rows)*width;
+                #pragma ivdep
+                for (int ub_index = 0; ub_index < width; ++ub_index) {
+                    matrix_out[ub_index] = matrix_out[lr_index+ub_index];
+                }
+            }
+
+        }, th_num);
 
         #ifdef PRINT
         (*p_out).print();
