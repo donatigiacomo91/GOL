@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
         matrix_out = p_out->matrix;
 
         // apparently vectorization here is not convenient
-        pf.parallel_for(1, rows+1, [matrix_in,matrix_out](const long i) {
+        pf.parallel_for(1, rows+1, [matrix_in,matrix_out,width,rows,cols](const long i) {
 
             // current, upper and lower indices
             // current, upper and lower indices
