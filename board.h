@@ -22,8 +22,8 @@ public:
         m_width = columns+2;
         m_height = rows+2;
         auto size = m_width * m_height * sizeof(int);
-        size += size%sizeof(int);
-        matrix = (int*) _mm_malloc(size, sizeof(int));
+        size += size%64;
+        matrix = (int*) _mm_malloc(size, 64);
     }
 
     ~board() {
