@@ -40,3 +40,4 @@ move_to_mic:
 
 clean:
 	rm *.exe
+	rm *.test.txt

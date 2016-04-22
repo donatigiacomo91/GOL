@@ -9,6 +9,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 
 // extended board with additional borders
 
@@ -95,6 +96,23 @@ public:
 
         }
         std::cout << std::endl;
+    }
+
+    void print_file(std::ofstream &file) {
+
+        auto line_count = 0;
+        for (auto i = 0; i < m_width*m_height; ++i) {
+
+            file << matrix[i];
+            line_count++;
+
+            if (line_count == m_width){
+                file << std::endl;
+                line_count = 0;
+            }
+
+        }
+        file << std::endl;
     }
 
 };

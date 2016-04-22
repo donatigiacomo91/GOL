@@ -1,4 +1,6 @@
 #include <iostream>
+#include <string>
+#include <ctime>
 #include <chrono>
 
 #include "board.h"
@@ -10,7 +12,7 @@
 //
 // this version is also vectorized
 
-// #define PRINT
+#define PRINT
 
 int main(int argc, char* argv[]) {
 
@@ -33,7 +35,11 @@ int main(int argc, char* argv[]) {
     in.set_random();
 
     #ifdef PRINT
-    in.print();
+    std::time_t time = std::time(nullptr);
+    std::ofstream file;
+    std::string filename = std::to_string(time)+"_seq.test.txt";
+    file.open(filename);
+    in.print_file(file);
     #endif
 
     // time start
@@ -90,8 +96,7 @@ int main(int argc, char* argv[]) {
         }
 
         #ifdef PRINT
-        (*p_out).print();
-        std::cout << std::endl;
+        (*p_out).print_file(file);
         #endif
 
         // swap pointer

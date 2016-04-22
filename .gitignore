@@ -3,7 +3,6 @@
 
 # Clion
 .idea
-CMakeLists.txt
 
 # Compiler report 
 *.optrpt
