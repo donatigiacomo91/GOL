@@ -97,6 +97,41 @@ public:
         std::cout << std::endl;
     }
 
+    // check if this is obtained from "in"
+    bool test(board* in) {
+
+        // check board dimensions
+        if (in->m_width != m_width || in->m_height != m_height) {
+            return false;
+        }
+
+        // check matrix
+        int ind, cell_value, expected_value, sum;
+        int* origin = in->matrix;
+        for (int i = 1; i < m_height; ++i) {
+            ind = i*m_width;
+            for (int j = 1; j < m_width; ++j) {
+
+                cell_value = origin[ind+j];
+                sum =   origin[ind+j-1-m_width] + origin[ind+j-m_width] + origin[ind+j+1-m_width] +
+                        origin[ind+j-1] + origin[ind+j+1] +
+                        origin[ind+j-1+m_width] + origin[ind+j+m_width] + origin[ind+j+1+m_width];
+                expected_value = (sum == 3) || (sum+cell_value == 3) ? 1 : 0;
+
+                if(expected_value != matrix[ind+j]){
+                    return false;
+                }
+
+            }
+        }
+
+        // TODO: check borders
+
+
+        return true;
+
+    }
+
 };
 
 #endif //GOL_BOARD2_H
