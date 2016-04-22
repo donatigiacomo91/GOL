@@ -121,13 +121,6 @@ void* body(void* arg) {
             (*p_in).print();
             std::cout << std::endl;
             #endif
-            #ifdef TEST
-            if (p_out->test(p_in)) {
-                std::cout << "Iter." << k << " TEST OK" << std::endl;
-            } else {
-                std::cout << "Iter." << k << " TEST FAIL" << std::endl;
-            }
-            #endif
         } else if(res != 0) {
             std::cout << "Barrier error n." << res << std::endl;
             pthread_exit(NULL);
