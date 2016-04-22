@@ -97,20 +97,6 @@ public:
         std::cout << std::endl;
     }
 
-    // print all lines between l1 and l2 (included)
-    // this not print the borders
-    void print(int l1, int l2) {
-
-        for (auto i = l1; i <= l2; ++i) {
-            auto index = l1*m_width + m_width + 1;
-            for (int j = 0; j <= m_width-2; ++j) {
-                std::cout << matrix[index+j] << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
-    }
-
 };
 
 #endif //GOL_BOARD2_H

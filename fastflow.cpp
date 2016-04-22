@@ -1,3 +1,4 @@
+#include <iostream>
 #include <chrono>
 #include <ff/parallel_for.hpp>
 
@@ -8,7 +9,8 @@
 //
 // the two board (implemented as contiguous memory) are read and write in a perfect linear way
 //
-// this version is also vectorized (not with fastflow parallel for)
+// this version can be vectorized but with fastflow parallel for the compiler does not consider it convenient
+// compile with flag "-vec-report5" for further.
 
 // #define PRINT
 
@@ -55,7 +57,6 @@ int main(int argc, char* argv[]) {
         pf.parallel_for(1, rows+1, [matrix_in,matrix_out,width,rows,cols](const long i) {
 
             // current, upper and lower indices
-            // current, upper and lower indices
             auto up_p = (i-1)*width + 1;
             auto curr_p = up_p + width;
             auto low_p = curr_p + width;
@@ -91,7 +92,7 @@ int main(int argc, char* argv[]) {
                     matrix_out[bb_index+z] = matrix_out[fr_index+z];
                 }
             }
-            // last row must be copied as bottom border
+            // last row must be copied as upper border
             if (i == rows) {
                 const auto lr_index = (rows)*width;
                 #pragma ivdep

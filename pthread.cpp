@@ -18,18 +18,18 @@ struct thread_data{
     int _stop;
 };
 
-// synchronization lock (some kind of barrier)
+// synchronization point
 pthread_barrier_t barrier;
 
-// TODO: probably heap pointers are not a good idea
 // game boards
 board * in;
 board * out;
-
+// game iteration
 int iter_num;
 
 void* body(void* arg) {
 
+    // get data from arg
     thread_data* data = (thread_data*) arg;
     board * p_in = in;
     board * p_out = out;
@@ -40,9 +40,11 @@ void* body(void* arg) {
     const auto cols = p_in->m_width;
     const auto rows = p_in->m_height;
 
+    // data pointers
     int* matrix_in;
     int* matrix_out;
 
+    // thread chunk
     const auto assigned_row_num = (stop-start+1);
 
     // game iteration
@@ -110,8 +112,9 @@ void* body(void* arg) {
         int res = pthread_barrier_wait(&barrier);
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
             // one of the forked threads pass here when threads exit from barrier, so this is not a real serial part
-            // but until all threads have reached again the barrier this portion of code is not executed again
-            // (including the "serial" thread)
+            // but until all threads (including the "serial" thread) have reached again the barrier
+            // this portion of code is not executed again.
+            //
             // so we can insert test here if we read safe data structures (data that are not write in the next iteration)
             #ifdef PRINT
             (*p_in).print();
@@ -137,7 +140,6 @@ int main(int argc, char* argv[]) {
     // parallelism degree
     auto th_num = atoi(argv[4]);
 
-    // TODO: use or not "new" ???
     // data structures
     in = new board(rows, cols);
     out = new board(rows, cols);
@@ -151,7 +153,6 @@ int main(int argc, char* argv[]) {
     // time start
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
-    // TODO: think about static splitting [particular case es: th_rows<1 ...]
     auto th_rows = rows / th_num;
     auto remains = rows % th_num;
 
@@ -163,6 +164,7 @@ int main(int argc, char* argv[]) {
     // initialize a barrier
     pthread_barrier_init(&barrier, NULL, th_num);
 
+    // build thread chunk
     int start, stop = 0;
     thread_data* t_data = (thread_data*) malloc(sizeof(t_data)*th_num);
     for(auto i=0; i<th_num; i++) {
@@ -176,6 +178,7 @@ int main(int argc, char* argv[]) {
         stop++;
     }
 
+    // run the threads
     pthread_t* tid = (pthread_t*) malloc(sizeof(pthread_t)*th_num);
     for(auto i=0; i<th_num; i++) {
         auto rc = pthread_create(&tid[i], NULL, body, (void *)&t_data[i]);
@@ -193,7 +196,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // clean up
+    // clean up threads data structures
     pthread_attr_destroy(&attr);
     pthread_barrier_destroy(&barrier);
 

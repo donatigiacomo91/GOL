@@ -1,9 +1,7 @@
-#include "board.h"
+#include <iostream>
 #include <chrono>
 
-/*
- * local compile with: g++-5 -std=c++11 -O3 sequential.cpp -o seq.exe
- */
+#include "board.h"
 
 // cache efficient version, the board is extended with additional border to allow
 // a linear scan of the memory with tree indices that compute the neighbour sum
@@ -49,10 +47,10 @@ int main(int argc, char* argv[]) {
         auto curr_p = in.m_width+1;
         auto low_p = in.m_width*2+1;
 
+        // data pointers
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
 
-        // vectorization here report a potential speedup of 3.5
 	    #pragma ivdep
         for (int i = 0; i < (cols+2) * rows; ++i) {
 
@@ -83,12 +81,11 @@ int main(int argc, char* argv[]) {
         // set top and bottom border
         int start = in.m_width; // second row starting index
         int end = (in.m_height-1)*in.m_width; // last row starting index
-        // vectorization here report a potential speedup of 1.2
         #pragma ivdep
         for (int j = 0; j < start; ++j) {
-            // copy last real row in upper border (first row)
+            // copy last row in upper border
             matrix_out[j] = matrix_out[end-in.m_width+j];
-            // copy first real row in bottom border (last row)
+            // copy first row in bottom border
             matrix_out[end+j] = matrix_out[start+j];
         }
 
@@ -103,7 +100,6 @@ int main(int argc, char* argv[]) {
         p_out = tmp;
 
     }
-
 
     // time end
     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();

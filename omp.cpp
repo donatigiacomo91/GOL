@@ -1,3 +1,4 @@
+#include <iostream>
 #include <chrono>
 #include <omp.h>
 
@@ -5,7 +6,7 @@
 
 /*
  * NOTE: before run this code on the MIC we have to execute the command line: "export LD_LIBRARY_PATH=."
- *        and we have to ensure the presence of "libiomp5.so" on the MIC.
+ *        and we have to ensure the presence of "libiomp5.so" in the same directory of the executable.
  */
 
 // cache efficient version, the board is extended with additional border to allow
@@ -48,23 +49,16 @@ int main(int argc, char* argv[]) {
     // time start
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
-    // #pragma omp parallel num_threads(th_num)
-    // {
     // game iteration
     for (int k = 0; k < it_num; ++k) {
 
+        // data pointers
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
 
-        // compute the next matrix state
-        //
-        // note: to allow a perfect linear scan (that implies vectorization) the number of iterations
-        //          are slightly more than necessary. the border are then overwritten.
-        //
         #pragma omp parallel for num_threads(th_num) schedule(static)
         for (int i = 1; i <= rows; ++i) {
 
-            // current, upper and lower indices
             // current, upper and lower indices
             auto up_p = (i-1)*width + 1;
             auto curr_p = up_p + width;
