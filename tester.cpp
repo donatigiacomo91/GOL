@@ -32,13 +32,13 @@ bool test(int* origin, int* result, int rows, int cols) {
 
 int main(int argc, char* argv[]) {
 
-    // file to read
+    // file to test
     auto file_name = argv[1];
 
     std::ifstream file(file_name);
-
     std::string line;
 
+    // read test parameaters
     std::getline(file, line);
     int rows = std::stoi(line);
     std::getline(file, line);
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // read the file produced by the execution of Game of Life and test it
+    // read the next matrix and test it
     for (int i = 0; i < iteration; ++i) {
 
         // discard newline separator

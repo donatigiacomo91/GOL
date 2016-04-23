@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <ctime>
 #include <chrono>
@@ -12,7 +13,7 @@
 //
 // this version is also vectorized
 
-#define PRINT
+//#define PRINT
 
 int main(int argc, char* argv[]) {
 

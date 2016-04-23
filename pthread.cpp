@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <unistd.h>
 #include <pthread.h>
 #include <chrono>
@@ -12,7 +13,6 @@
 #include "board.h"
 
 //#define PRINT
-//#define TEST
 
 struct thread_data{
     int _start;
@@ -27,6 +27,10 @@ board * in;
 board * out;
 // game iteration
 int iter_num;
+
+#ifdef PRINT
+std::ofstream file;
+#endif
 
 void* body(void* arg) {
 
@@ -118,8 +122,7 @@ void* body(void* arg) {
             //
             // so we can insert test here if we read safe data structures (data that are not write in the next iteration)
             #ifdef PRINT
-            (*p_in).print();
-            std::cout << std::endl;
+            (*p_in).print_file(file);
             #endif
         } else if(res != 0) {
             std::cout << "Barrier error n." << res << std::endl;
@@ -148,7 +151,13 @@ int main(int argc, char* argv[]) {
     in->set_random();
 
     #ifdef PRINT
-    in->print();
+    std::time_t time = std::time(nullptr);
+    std::string filename = std::to_string(time)+"_seq.test.txt";
+    file.open(filename);
+    file << in->m_height << std::endl;
+    file << in->m_width << std::endl;
+    file << iter_num << std::endl;
+    in->print_file(file);
     #endif
 
     // time start
