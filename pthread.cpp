@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
 
     #ifdef PRINT
     std::time_t time = std::time(nullptr);
-    std::string filename = std::to_string(time)+"_seq.test.txt";
+    std::string filename = std::to_string((long long)time)+"_seq.test.txt";
     file.open(filename);
     file << in->m_height << std::endl;
     file << in->m_width << std::endl;
