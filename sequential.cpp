@@ -39,6 +39,9 @@ int main(int argc, char* argv[]) {
     std::ofstream file;
     std::string filename = std::to_string(time)+"_seq.test.txt";
     file.open(filename);
+    file << in.m_height << std::endl;
+    file << in.m_width << std::endl;
+    file << it_num << std::endl;
     in.print_file(file);
     #endif
 

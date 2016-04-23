@@ -1,40 +1,33 @@
 #include <iostream>
+#include <cstdlib>
+#include <fstream>
+#include <string>
 
-// check if this is obtained from "in"
-bool test(board* in, board* out) {
 
-    // check board dimensions
-    if (in->m_width != out->m_width || in->m_height != out->m_height) {
-        return false;
-    }
+bool test(int* origin, int* result, int rows, int cols) {
 
-    // check matrix
-    int* origin = in->matrix;
-    int* result = out->matrix;
+    int ind, sum, cell_value, expected_value;
 
-    int ind, cell_value, expected_value, sum;
-    for (int i = 1; i < m_height; ++i) {
-        ind = i*m_width;
-        for (int j = 1; j < m_width; ++j) {
+    for (int i = 1; i < rows-1; ++i) {
+        ind = i*cols;
+        for (int j = 1; j < cols-1; ++j) {
 
             cell_value = origin[ind+j];
-            sum =   origin[ind+j-1-m_width] + origin[ind+j-m_width] + origin[ind+j+1-m_width] +
+
+            sum =   origin[ind+j-1-cols] + origin[ind+j-cols] + origin[ind+j+1-cols] +
                     origin[ind+j-1] + origin[ind+j+1] +
-                    origin[ind+j-1+m_width] + origin[ind+j+m_width] + origin[ind+j+1+m_width];
+                    origin[ind+j-1+cols] + origin[ind+j+cols] + origin[ind+j+1+cols];
+
             expected_value = (sum == 3) || (sum+cell_value == 3) ? 1 : 0;
 
             if(expected_value != result[ind+j]){
+                std::cout << "row n." << i << " column n." << j << " ";
                 return false;
             }
-
         }
     }
 
-    // TODO: check borders
-
-
     return true;
-
 }
 
 int main(int argc, char* argv[]) {
@@ -42,7 +35,55 @@ int main(int argc, char* argv[]) {
     // file to read
     auto file_name = argv[1];
 
+    std::ifstream file(file_name);
+
+    std::string line;
+
+    std::getline(file, line);
+    int rows = std::stoi(line);
+    std::getline(file, line);
+    int cols = std::stoi(line);
+    std::getline(file, line);
+    int iteration = std::stoi(line);
+
+    // allocate memory for two matrix
+    int* matrix_in = (int*) malloc(rows*cols*sizeof(int));
+    int* matrix_out = (int*) malloc(rows*cols*sizeof(int));
+
+    // read the starting matrix
+    int index = 0;
+    for (int j = 0; j < rows; ++j) {
+        std::getline(file, line);
+        for (int i = 0; i < cols; ++i) {
+            matrix_in[index] = (int) (line[i] - '0');
+            index++;
+        }
+    }
+
     // read the file produced by the execution of Game of Life and test it
+    for (int i = 0; i < iteration; ++i) {
+
+        // discard newline separator
+        std::getline(file, line);
+
+        // read the next matrix
+        index = 0;
+        for (int j = 0; j < rows; ++j) {
+            std::getline(file, line);
+            for (int i = 0; i < cols; ++i) {
+                matrix_out[index] = (int) (line[i] - '0');
+                index++;
+            }
+        }
+
+        if(test(matrix_in, matrix_out, rows, cols)) {
+            std::cout << "Test PASSED at iteration n." << i+1 << std::endl;
+        } else {
+            std::cout << "Test FAIL at iteration n." << i+1 << std::endl;
+        }
+
+        std::swap(matrix_in, matrix_out);
+    }
 
     return 0;
 }

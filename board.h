@@ -98,6 +98,7 @@ public:
         std::cout << std::endl;
     }
 
+    // print the matrix (without the borders) in the specified file
     void print_file(std::ofstream &file) {
 
         auto line_count = 0;
