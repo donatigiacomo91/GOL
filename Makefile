@@ -22,6 +22,8 @@ fastflow:
 m_fastflow:
 	icc fastflow.cpp -std=c++11 -O3 -pthread -I /home/spm1501/fastflow -o m_ff.exe -DNO_DEFAULT_MAPPING -finline-functions -mmic
 
+tester:
+	icc tester.cpp -std=c++11 -O3 -o tester.exe
 compile_all:
 	make sequential
 	make m_sequential
