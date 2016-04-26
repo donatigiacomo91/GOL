@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <ctime>
 #include <chrono>
 #include <omp.h>
 
@@ -43,9 +45,15 @@ int main(int argc, char* argv[]) {
     in.set_random();
 
     #ifdef PRINT
-    in.print();
+    std::time_t time = std::time(nullptr);
+    std::ofstream file;
+    std::string filename = std::to_string((long long)time)+"_seq.test.txt";
+    file.open(filename);
+    file << in.m_height << std::endl;
+    file << in.m_width << std::endl;
+    file << it_num << std::endl;
+    in.print_file(file);
     #endif
-
     // time start
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
@@ -107,8 +115,7 @@ int main(int argc, char* argv[]) {
         }
 
         #ifdef PRINT
-        (*p_out).print();
-        std::cout << std::endl;
+        (*p_out).print_file(file);
         #endif
 
         // swap pointer

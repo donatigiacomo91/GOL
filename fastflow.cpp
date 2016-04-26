@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <ctime>
 #include <chrono>
 #include <ff/parallel_for.hpp>
 
@@ -11,6 +13,8 @@
 //
 // this version can be vectorized but with fastflow parallel for the compiler does not consider it convenient
 // compile with flag "-vec-report5" for further.
+//
+// performances are the same as a non vectorized version, excepted for the case with 1 thread
 
 // #define PRINT
 
@@ -41,7 +45,14 @@ int main(int argc, char* argv[]) {
     ff::ParallelFor pf(th_num, true);
 
     #ifdef PRINT
-    in.print();
+    std::time_t time = std::time(nullptr);
+    std::ofstream file;
+    std::string filename = std::to_string((long long)time)+"_seq.test.txt";
+    file.open(filename);
+    file << in.m_height << std::endl;
+    file << in.m_width << std::endl;
+    file << it_num << std::endl;
+    in.print_file(file);
     #endif
 
     // time start
@@ -53,7 +64,6 @@ int main(int argc, char* argv[]) {
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
 
-        // apparently vectorization here is not convenient
         pf.parallel_for(1, rows+1, [matrix_in,matrix_out,width,rows,cols](const long i) {
 
             // current, upper and lower indices
@@ -104,10 +114,8 @@ int main(int argc, char* argv[]) {
         }, th_num);
 
         #ifdef PRINT
-        (*p_out).print();
-        std::cout << std::endl;
+        (*p_out).print_file(file);
         #endif
-
         // swap pointer
         board * tmp = p_in;
         p_in = p_out;
