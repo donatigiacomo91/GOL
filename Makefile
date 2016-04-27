@@ -24,7 +24,8 @@ m_fastflow:
 
 tester:
 	icc tester.cpp -std=c++11 -O3 -o tester.exe
-compile_all:
+
+compile:
 	make sequential
 	make m_sequential
 	make pthread
@@ -34,7 +35,7 @@ compile_all:
 	make fastflow
 	make m_fastflow
 
-move_to_mic:
+move:
 	scp m_seq.exe mic0:
 	scp m_pthread.exe mic0:
 	scp m_omp.exe mic0:
@@ -43,3 +44,4 @@ move_to_mic:
 clean:
 	rm *.exe
 	rm *.test.txt
+	rm *.optrpt
