@@ -96,6 +96,7 @@ void* body(void* arg) {
         if (start == 0) {
             const auto sr_index = cols;
             const auto bb_index = (rows-1)*cols;
+            #pragma ivdep
             for (int i = 0; i < cols; ++i) {
                 matrix_out[bb_index+i] = matrix_out[sr_index+i];
             }
@@ -103,6 +104,7 @@ void* body(void* arg) {
         // thread that compute the last row have to copy it as upper border
         if (stop == rows-3) {
             const auto slr_index = (rows-2)*cols;
+            #pragma ivdep
             for (int ub_index = 0; ub_index < cols; ++ub_index) {
                 matrix_out[ub_index] = matrix_out[slr_index+ub_index];
             }
