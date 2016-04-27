@@ -43,5 +43,4 @@ move:
 
 clean:
 	rm *.exe
-	rm *.test.txt
-	rm *.optrpt
+	rm  *.optrpt
