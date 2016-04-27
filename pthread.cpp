@@ -32,6 +32,8 @@ int iter_num;
 std::ofstream file;
 #endif
 
+long long exe_t=0, barr_t=0;
+
 void* body(void* arg) {
 
     // get data from arg
@@ -54,6 +56,8 @@ void* body(void* arg) {
 
     // game iteration
     for (int k = 0; k < iter_num; ++k) {
+
+        std::chrono::high_resolution_clock::time_point ts = std::chrono::high_resolution_clock::now();
 
         matrix_in = p_in->matrix;
         matrix_out = p_out->matrix;
@@ -115,6 +119,9 @@ void* body(void* arg) {
         p_in = p_out;
         p_out = tmp;
 
+        std::chrono::high_resolution_clock::time_point tb = std::chrono::high_resolution_clock::now();
+        auto iter_time = std::chrono::duration_cast<std::chrono::microseconds>(tb - ts).count();
+
         // synchronization point
         int res = pthread_barrier_wait(&barrier);
         if(res == PTHREAD_BARRIER_SERIAL_THREAD) {
@@ -126,6 +133,10 @@ void* body(void* arg) {
             #ifdef PRINT
             (*p_in).print_file(file);
             #endif
+            std::chrono::high_resolution_clock::time_point tbe = std::chrono::high_resolution_clock::now();
+            auto wait_time = std::chrono::duration_cast<std::chrono::microseconds>(tbe - tb).count();
+            exe_t += iter_time;
+            barr_t += wait_time;
         } else if(res != 0) {
             std::cout << "Barrier error n." << res << std::endl;
             pthread_exit(NULL);
@@ -218,6 +229,7 @@ int main(int argc, char* argv[]) {
 
     std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
     std::cout << std::endl;
+    std::cout << exe_t/iter_num << "," << barr_t/iter_num << std::endl;
 
     // data structures clean
     delete in;
