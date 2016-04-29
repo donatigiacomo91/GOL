@@ -14,7 +14,7 @@
 // this version can be vectorized but with fastflow parallel for the compiler does not consider it convenient
 // compile with flag "-vec-report5" for further.
 //
-// performances are the same as a non vectorized version, excepted for the case with 1 thread
+// performances are the same as a non vectorized version ("-no-vec"), excepted for the case with 1 thread
 
 // #define PRINT
 
@@ -122,7 +122,6 @@ int main(int argc, char* argv[]) {
         p_out = tmp;
 
     }
-
 
     // time end
     std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();

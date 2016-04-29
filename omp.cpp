@@ -7,7 +7,7 @@
 #include "board.h"
 
 /*
- * NOTE: before run this code on the MIC we have to execute the command line: "export LD_LIBRARY_PATH=."
+ * NOTE: before run this code on the MIC we have to execute the command: "export LD_LIBRARY_PATH=."
  *        and we have to ensure the presence of "libiomp5.so" in the same directory of the executable.
  */
 

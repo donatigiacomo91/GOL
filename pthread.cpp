@@ -41,7 +41,7 @@ void* body(void* arg) {
     int start = data->_start;
     int stop = data->_stop;
 
-    // columns number
+    // matrix dimensions
     const auto cols = p_in->m_width;
     const auto rows = p_in->m_height;
 
@@ -91,7 +91,6 @@ void* body(void* arg) {
             right += cols;
         }
 
-
         // thread that compute the first row have to copy it as bottom border
         if (start == 0) {
             const auto sr_index = cols;
@@ -122,7 +121,7 @@ void* body(void* arg) {
             // but until all threads (including the "serial" thread) have reached again the barrier
             // this portion of code is not executed again.
             //
-            // so we can insert test here if we read safe data structures (data that are not write in the next iteration)
+            // so we can insert print here if we read safe data structures (data that are not write in the next iteration)
             #ifdef PRINT
             (*p_in).print_file(file);
             #endif
@@ -165,6 +164,7 @@ int main(int argc, char* argv[]) {
     // time start
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
+    // split parameaters
     auto th_rows = rows / th_num;
     auto remains = rows % th_num;
 
@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
     std::cout << "game execution time is: " << duration << " milliseconds" << std::endl;
     std::cout << std::endl;
 
-    // data structures clean
+    // game data structures clean
     delete in;
     delete out;
 

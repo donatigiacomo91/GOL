@@ -6,7 +6,7 @@
 
 #include "board.h"
 
-// cache efficient version, the board is extended with additional border to allow
+// game of life cache efficient version, the board is extended with additional border to allow
 // a linear scan of the memory with tree indices that compute the neighbour sum
 //
 // the two board (implemented as contiguous memory) are read and write in a perfect linear way
